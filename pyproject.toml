@@ -23,6 +23,14 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = []
+[project.optional-dependencies]
+test = [
+  "coverage[toml]>=6.5",
+  "pytest",
+  "jupyter-client",
+  "anyio",
+  "ipykernel",
+]
 
 [project.urls]
 Documentation = "https://github.com/flying-sheep/session-info2#readme"
@@ -33,13 +41,7 @@ Source = "https://github.com/flying-sheep/session-info2"
 source = "vcs"
 
 [tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-  "jupyter-client",
-  "anyio",
-  "ipykernel",
-]
+features = ["test"]
 [tool.hatch.envs.default.env-vars]
 JUPYTER_PLATFORM_DIRS = "1"
 [tool.hatch.envs.default.scripts]
