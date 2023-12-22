@@ -1,11 +1,10 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling", "hatch-vcs", "hatch-docstring-description"]
 build-backend = "hatchling.build"
 
 [project]
 name = "session-info2"
-dynamic = ["version"]
-description = 'Print versions of imported packages'
+dynamic = ["version", "description"]
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
@@ -26,9 +25,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/session-info2#readme"
-Issues = "https://github.com/unknown/session-info2/issues"
-Source = "https://github.com/unknown/session-info2"
+Documentation = "https://github.com/flying-sheep/session-info2#readme"
+Issues = "https://github.com/flying-sheep/session-info2/issues"
+Source = "https://github.com/flying-sheep/session-info2"
 
 [tool.hatch.version]
 source = "vcs"
@@ -37,7 +36,12 @@ source = "vcs"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+  "jupyter-client",
+  "anyio",
+  "ipykernel",
 ]
+[tool.hatch.envs.default.env-vars]
+JUPYTER_PLATFORM_DIRS = "1"
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
@@ -50,15 +54,36 @@ cov = [
   "cov-report",
 ]
 
+[tool.pytest.ini_options]
+addopts = [
+  "--import-mode=importlib",
+  "--strict-markers",
+]
+asyncio_mode = "auto"
+
 [[tool.hatch.envs.all.matrix]]
 python = ["3.10", "3.11", "3.12"]
 
-[tool.hatch.envs.types]
-dependencies = [
-  "mypy>=1.0.0",
+[tool.ruff.lint]
+select = ['ALL']
+ignore = [
+  # Missing type annotation for self in method
+  "ANN101",
+  # dict(...) calls are good
+  "C408",
+  # 0 instead of 1 blank lines before class docstring
+  "D203",
+  # Multi-line docstring summary should start at the first instead of second line
+  "D213",
 ]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/session_info2 tests}"
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+  "D102",  # Missing docstring in public method
+  "D103",  # Missing docstring in public function
+  "D105",  # Missing docstring in magic method
+  "S101",  # Use of assert
+  "INP001",  # __init__.py
+]
 
 [tool.coverage.run]
 source_pkgs = ["session_info2", "tests"]
