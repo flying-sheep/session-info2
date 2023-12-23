@@ -22,6 +22,7 @@ jobs:
     - uses: pavelzw/pytest-action@v2
       with:
         custom-arguments: --color=yes
+        click-to-expand: false
         verbose: true
         job-summary: true
         emoji: false
