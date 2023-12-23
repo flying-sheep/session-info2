@@ -27,9 +27,11 @@ dependencies = []
 test = [
   "coverage[toml]>=6.5",
   "pytest",
+  "pytest-asyncio",
   "jupyter-client",
-  "anyio",
   "ipykernel",
+  # For GitHub report
+  "pytest-md",
 ]
 
 [project.urls]
