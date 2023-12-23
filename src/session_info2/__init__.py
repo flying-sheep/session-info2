@@ -10,7 +10,6 @@ from typing import Any
 
 # TODO: make this configurable
 # https://github.com/flying-sheep/session-info2/issues/6
-
 IGNORED = frozenset({"ipython"})
 
 
