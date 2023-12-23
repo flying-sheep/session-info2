@@ -9,6 +9,7 @@
       "program": "${file}",
       "console": "internalConsole",
       "justMyCode": false,
+      "presentation": { "hidden": true },
     },
   ],
 }

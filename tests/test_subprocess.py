@@ -7,16 +7,15 @@ from typing import Any
 
 import pytest
 from jupyter_client.asynchronous.client import AsyncKernelClient
-from jupyter_client.manager import AsyncKernelManager
+from jupyter_client.manager import start_new_async_kernel
 
 
 @pytest.fixture()
 async def kernel_client() -> AsyncGenerator[AsyncKernelClient, None]:
-    kernel_manager = AsyncKernelManager(kernel_name="python3")
-    await kernel_manager.start_kernel()
-    kernel_client = kernel_manager.client()
-    yield kernel_client
-    await kernel_manager.shutdown_kernel()
+    km, kc = await start_new_async_kernel(kernel_name="python3")
+    yield kc
+    kc.stop_channels()
+    await km.shutdown_kernel()
 
 
 async def execute(kc: AsyncKernelClient, code: str) -> list[dict[str, str]]:
@@ -26,7 +25,7 @@ async def execute(kc: AsyncKernelClient, code: str) -> list[dict[str, str]]:
         code,
         allow_stdin=False,
         output_hook=msgs.append,
-        timeout=5.0,
+        # If it hangs, enable this: timeout=5.0,
     )
     assert reply["content"]["status"] == "ok"
     return [
@@ -50,7 +49,17 @@ session_info()
         pytest.param(
             "import pytest",
             {"text/plain": f"pytest\t{version('pytest')}"},
-            id="pytest",
+            id="package",
+        ),
+        pytest.param(
+            "from jupyter_client import find_connection_file",
+            {"text/plain": f"jupyter_client\t{version('jupyter-client')}"},
+            id="function",
+        ),
+        pytest.param(
+            "from jupyter_client.client import KernelClient",
+            {"text/plain": f"jupyter_client\t{version('jupyter-client')}"},
+            id="class",
         ),
     ],
 )
