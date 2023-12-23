@@ -27,8 +27,8 @@ dependencies = []
 test = [
   "coverage[toml]>=6.5",
   "pytest",
+  "pytest-asyncio",
   "jupyter-client",
-  "anyio",
   "ipykernel",
 ]
 

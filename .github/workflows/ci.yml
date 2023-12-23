@@ -18,4 +18,7 @@ jobs:
       with:
         cache: pip
     - run: pip install -e .[test]
-    - run: pytest --color=yes -vv
+    - uses: pavelzw/pytest-action@v2
+      with:
+        verbose: true
+        job-summary: true
