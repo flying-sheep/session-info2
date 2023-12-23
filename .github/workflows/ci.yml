@@ -22,3 +22,4 @@ jobs:
       with:
         verbose: true
         job-summary: true
+        emoji: false

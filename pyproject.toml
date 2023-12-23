@@ -30,6 +30,8 @@ test = [
   "pytest-asyncio",
   "jupyter-client",
   "ipykernel",
+  # For GitHub report
+  "pytest-md",
 ]
 
 [project.urls]
