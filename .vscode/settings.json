@@ -8,6 +8,6 @@
         },
     },
     "python.analysis.typeCheckingMode": "strict",
-    "python.testing.pytestArgs": ["--color=yes"],
+    "python.testing.pytestArgs": ["--color=yes", "-vv"],
     "python.testing.pytestEnabled": true,
 }

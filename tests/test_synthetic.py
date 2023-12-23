@@ -4,6 +4,7 @@ from importlib.metadata import version
 from typing import Any
 
 import pytest
+from jupyter_client import find_connection_file
 from session_info2 import SessionInfo
 
 
@@ -15,7 +16,13 @@ from session_info2 import SessionInfo
             dict(pytest=["pytest"]),
             dict(pytest=pytest),
             f"pytest\t{version('pytest')}",
-            id="pytest",
+            id="package",
+        ),
+        pytest.param(
+            dict(jupyter_client=["jupyter_client"]),
+            dict(find_connection_file=find_connection_file),
+            f"jupyter_client\t{version('jupyter-client')}",
+            id="function",
         ),
     ],
 )
