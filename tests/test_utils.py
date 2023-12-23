@@ -1,5 +1,6 @@
 """Test helper utils."""
 import pytest
+
 from session_info2 import _mods
 
 

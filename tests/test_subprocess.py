@@ -56,6 +56,11 @@ session_info()
             {"text/plain": f"jupyter_client\t{version('jupyter-client')}"},
             id="function",
         ),
+        pytest.param(
+            "from jupyter_client.client import KernelClient",
+            {"text/plain": f"jupyter_client\t{version('jupyter-client')}"},
+            id="class",
+        ),
     ],
 )
 async def test_run(
