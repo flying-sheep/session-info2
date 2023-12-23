@@ -1,16 +1,24 @@
 """Print versions of imported packages."""
+from __future__ import annotations
+
 import sys
-from collections.abc import Generator, Mapping, Sequence
-from collections.abc import Set as AbstractSet
+import traceback
 from dataclasses import dataclass
 from functools import cached_property
 from importlib.metadata import packages_distributions, version
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Mapping, Sequence
+    from collections.abc import Set as AbstractSet
+
+    from ipywidgets import Widget
 
 # TODO: make this configurable
 # https://github.com/flying-sheep/session-info2/issues/6
 IGNORED = frozenset({"ipython"})
+MIME_WIDGET = "application/vnd.jupyter.widget-view+json"
 
 
 @dataclass
@@ -38,6 +46,52 @@ class SessionInfo:
     def __repr__(self) -> str:
         """Generate string representation."""
         return "\n".join(f"{d}\t{version(d)}" for d in self.imported_dists)
+
+    def _repr_markdown_(self) -> str:
+        # TODO: implement Markdown
+        # https://github.com/flying-sheep/session-info2/issues/3
+        return repr(self)
+
+    def _repr_mimebundle_(self) -> dict[str, Any]:
+        mb: dict[str, Any] = {}
+        for mime, d in (
+            ("text/plain", self.__repr__),
+            ("text/markdown", self._repr_markdown_),
+            (MIME_WIDGET, lambda: self.widget()._repr_mimebundle_()[MIME_WIDGET]),  # noqa: SLF001
+        ):
+            try:
+                mb[mime] = d()
+            except ImportError:  # noqa: PERF203
+                traceback.print_exc()
+        return mb
+
+    def widget(self) -> Widget:
+        """Generate HTML representation."""
+        import ipywidgets as widgets
+
+        rows = "\n".join(
+            f"<tr><td>{d}</td><td>{version(d)}</td></tr>" for d in self.imported_dists
+        )
+        html = f"""
+        <table>
+        <tr><th>Package</th><th>Version</th></tr>
+        {rows}
+        </table>"""
+        table = widgets.HTML(value=html)
+
+        try:
+            # TODO: replace with client-side copying
+            # https://github.com/jupyter-widgets/ipywidgets/issues/1891
+            import pyperclip
+        except ImportError:
+            return table
+
+        button = widgets.Button(
+            description="Copy as Markdown",
+            icon="copy",
+        )
+        button.on_click(lambda _: pyperclip.copy(self._repr_markdown_()))
+        return widgets.VBox((button, table))
 
 
 def session_info() -> SessionInfo:

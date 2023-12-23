@@ -8,7 +8,7 @@ dynamic = ["version", "description"]
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
-keywords = []
+keywords = ["jupyter", "session-info"]
 authors = [
   { name = "Philipp A.", email = "flying-sheep@web.de" },
 ]
@@ -33,6 +33,7 @@ test = [
   # For GitHub report
   "pytest-md",
 ]
+jupyter = ["ipywidgets", "pyperclip"]
 
 [project.urls]
 Documentation = "https://github.com/flying-sheep/session-info2#readme"
@@ -43,12 +44,12 @@ Source = "https://github.com/flying-sheep/session-info2"
 source = "vcs"
 
 [tool.hatch.envs.default]
-features = ["test"]
+features = ["test", "jupyter"]
 [tool.hatch.envs.default.env-vars]
 JUPYTER_PLATFORM_DIRS = "1"
 [tool.hatch.envs.default.scripts]
-test = "pytest {args:tests}"
-test-cov = "coverage run -m pytest {args:tests}"
+test = "pytest {args}"
+test-cov = "coverage run -m pytest {args}"
 cov-report = [
   "- coverage combine",
   "coverage report",
