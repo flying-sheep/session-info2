@@ -66,7 +66,7 @@ session_info()
 async def test_run(
     kernel_client: AsyncKernelClient,
     code: str,
-    expected: str,
+    expected: dict[str, str],
 ) -> None:
     await execute(kernel_client, code)
     [mimebundle] = await execute(kernel_client, RUN)

@@ -10,7 +10,7 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Mapping, Sequence
+    from collections.abc import Container, Generator, Mapping, Sequence
     from collections.abc import Set as AbstractSet
 
     from ipywidgets import Widget
@@ -52,16 +52,25 @@ class SessionInfo:
         # https://github.com/flying-sheep/session-info2/issues/3
         return repr(self)
 
-    def _repr_mimebundle_(self) -> dict[str, Any]:
+    def _repr_mimebundle_(
+        self,
+        include: Container[str] | None = None,
+        exclude: Container[str] | None = None,
+        **_kwargs: Any,  # noqa: ANN401
+    ) -> dict[str, Any]:
         mb: dict[str, Any] = {}
         for mime, d in (
             ("text/plain", self.__repr__),
             ("text/markdown", self._repr_markdown_),
             (MIME_WIDGET, lambda: self.widget()._repr_mimebundle_()[MIME_WIDGET]),  # noqa: SLF001
         ):
+            if include is not None and mime not in include:
+                continue
+            if exclude is not None and mime in exclude:
+                continue
             try:
                 mb[mime] = d()
-            except ImportError:  # noqa: PERF203
+            except ImportError:
                 traceback.print_exc()
         return mb
 
@@ -73,10 +82,11 @@ class SessionInfo:
             f"<tr><td>{d}</td><td>{version(d)}</td></tr>" for d in self.imported_dists
         )
         html = f"""
-        <table>
-        <tr><th>Package</th><th>Version</th></tr>
-        {rows}
-        </table>"""
+        <table class=table>
+            <tr><th>Package</th><th>Version</th></tr>
+            {rows}
+        </table>
+        """.strip()
         table = widgets.HTML(value=html)
 
         try:
@@ -105,8 +115,8 @@ def _get_module_name(obj: Any) -> str:  # noqa: ANN401
     """Get module name."""
     if isinstance(obj, ModuleType):
         return obj.__name__
-    if hasattr(obj, "__module__"):
-        return obj.__module__
+    if isinstance(mod := getattr(obj, "__module__", None), str):
+        return mod
     return type(obj).__module__
 
 

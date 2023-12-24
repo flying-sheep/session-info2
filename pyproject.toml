@@ -66,6 +66,13 @@ addopts = [
 ]
 asyncio_mode = "auto"
 
+[tool.mypy]
+strict = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/stubs"
+
+[tool.pyright]
+stubPath = "./stubs"
+
 [[tool.hatch.envs.all.matrix]]
 python = ["3.10", "3.11", "3.12"]
 
