@@ -1,18 +1,20 @@
 """Print versions of imported packages."""
 from __future__ import annotations
 
+import json
 import sys
 import traceback
 from dataclasses import dataclass
 from functools import cached_property
 from importlib.metadata import packages_distributions, version
 from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Container, Generator, Mapping, Sequence
     from collections.abc import Set as AbstractSet
 
+    from IPython.display import Javascript  # type: ignore[import-not-found]
     from ipywidgets import Widget
 
 # TODO: make this configurable
@@ -42,6 +44,30 @@ class SessionInfo:
             if dist_name is not None and dist_name.casefold() not in IGNORED:
                 imported[dist_name] = None
         return imported.keys()
+
+    def clipboard_js(
+        self,
+        rep: Literal["text/plain", "text/markdown", "application/json"],
+    ) -> Javascript:
+        """Copy representation to clipboard."""
+        match rep:
+            case "text/plain":
+                r = repr(self)
+            case "text/markdown":
+                r = self._repr_markdown_()
+            case "application/json":
+                r = json.dumps(
+                    [
+                        dict(package=d, version=str(version(d)))
+                        for d in self.imported_dists
+                    ],
+                )
+            case _:
+                msg = f"Unknown representation: {rep}"
+                raise ValueError(msg)
+        from IPython.display import Javascript
+
+        return Javascript(f"navigator.clipboard.writeText({json.dumps(r)})")
 
     def __repr__(self) -> str:
         """Generate string representation."""
