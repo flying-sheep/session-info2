@@ -58,9 +58,16 @@ class SessionInfo:
 
     @cache
     def _repr_markdown_(self) -> str:
-        # TODO: implement Markdown
-        # https://github.com/flying-sheep/session-info2/issues/3
-        return repr(self)
+        """Generate Markdown representation."""
+        header = ("Package", "Version")
+        rows = [(d, str(version(d))) for d in self.imported_dists]
+        w0, w1 = (
+            max(len(e) for e in col) for col in zip(*(header, *rows), strict=True)
+        )
+        row_template = f"| {{:<{w0}}} | {{:<{w1}}} |"
+        sep = row_template.format("-" * w0, "-" * w1)
+        rows_fmt = "\n".join(row_template.format(*row) for row in rows)
+        return f"{row_template.format(*header)}\n{sep}\n{rows_fmt}"
 
     @cache
     def _repr_html_(self, *, add_details: bool = True) -> str:
