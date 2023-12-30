@@ -68,7 +68,7 @@ asyncio_mode = "auto"
 
 [tool.mypy]
 strict = true
-mypy_path = "$MYPY_CONFIG_FILE_DIR/stubs"
+mypy_path = ["$MYPY_CONFIG_FILE_DIR/stubs", "$MYPY_CONFIG_FILE_DIR/src"]
 
 [tool.pyright]
 stubPath = "./stubs"

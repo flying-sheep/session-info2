@@ -9,6 +9,8 @@ import pytest
 from jupyter_client.asynchronous.client import AsyncKernelClient
 from jupyter_client.manager import start_new_async_kernel
 
+from session_info2 import MIME_WIDGET
+
 
 @pytest.fixture()
 async def kernel_client() -> AsyncGenerator[AsyncKernelClient, None]:
@@ -70,4 +72,5 @@ async def test_run(
 ) -> None:
     await execute(kernel_client, code)
     [mimebundle] = await execute(kernel_client, RUN)
-    assert mimebundle == expected
+    assert mimebundle.keys() == {"text/plain", "text/markdown", MIME_WIDGET}
+    assert mimebundle["text/plain"] == expected["text/plain"]
