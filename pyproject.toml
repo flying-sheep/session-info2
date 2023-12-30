@@ -48,7 +48,7 @@ features = ["test", "jupyter"]
 [tool.hatch.envs.default.env-vars]
 JUPYTER_PLATFORM_DIRS = "1"
 [tool.hatch.envs.default.scripts]
-test = "pytest {args}"
+test = "pytest -vv {args}"
 test-cov = "coverage run -m pytest {args}"
 cov-report = [
   "- coverage combine",
@@ -81,6 +81,8 @@ select = ['ALL']
 ignore = [
   # Missing type annotation for self in method
   "ANN101",
+  # functools.cache is fine to use
+  "B019",
   # dict(...) calls are good
   "C408",
   # 0 instead of 1 blank lines before class docstring
@@ -90,6 +92,9 @@ ignore = [
   # TODOs are fine, no need to assign to some person
   "TD002",
   "FIX002",
+  # Incompatible with formatter
+  "COM812",
+  "ISC001",
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [

@@ -72,5 +72,10 @@ async def test_run(
 ) -> None:
     await execute(kernel_client, code)
     [mimebundle] = await execute(kernel_client, RUN)
-    assert mimebundle.keys() == {"text/plain", "text/markdown", MIME_WIDGET}
+    assert mimebundle.keys() == {
+        "text/plain",
+        "text/markdown",
+        "text/html",
+        MIME_WIDGET,
+    }
     assert mimebundle["text/plain"] == expected["text/plain"]
