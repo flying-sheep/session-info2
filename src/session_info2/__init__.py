@@ -61,11 +61,11 @@ class SessionInfo:
         """Generate Markdown representation."""
         header = ("Package", "Version")
         rows = [(d, str(version(d))) for d in self.imported_dists]
-        w0, w1 = (
+        widths = [
             max(len(e) for e in col) for col in zip(*(header, *rows), strict=True)
-        )
-        row_template = f"| {{:<{w0}}} | {{:<{w1}}} |"
-        sep = row_template.format("-" * w0, "-" * w1)
+        ]
+        row_template = "| " + " | ".join(f"{{:<{w}}}" for w in widths) + " |"
+        sep = row_template.format(*(("-" * w) for w in widths))
         rows_fmt = "\n".join(row_template.format(*row) for row in rows)
         return f"{row_template.format(*header)}\n{sep}\n{rows_fmt}"
 
