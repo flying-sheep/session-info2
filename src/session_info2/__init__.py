@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from collections.abc import Container, Generator, Mapping, Sequence
     from collections.abc import Set as AbstractSet
 
-    from IPython.display import Javascript  # type: ignore[import-not-found]
     from ipywidgets import Widget
 
 # TODO: make this configurable
@@ -45,11 +44,11 @@ class SessionInfo:
                 imported[dist_name] = None
         return imported.keys()
 
-    def clipboard_js(
+    def _clipboard_js(
         self,
         rep: Literal["text/plain", "text/markdown", "application/json"],
-    ) -> Javascript:
-        """Copy representation to clipboard."""
+    ) -> str:
+        """Javascript to copy representation to clipboard."""
         match rep:
             case "text/plain":
                 r = repr(self)
@@ -65,9 +64,8 @@ class SessionInfo:
             case _:
                 msg = f"Unknown representation: {rep}"
                 raise ValueError(msg)
-        from IPython.display import Javascript
 
-        return Javascript(f"navigator.clipboard.writeText({json.dumps(r)})")
+        return f"navigator.clipboard.writeText({json.dumps(r)})"
 
     def __repr__(self) -> str:
         """Generate string representation."""
@@ -116,18 +114,23 @@ class SessionInfo:
         table = widgets.HTML(value=html)
 
         try:
-            # TODO: replace with client-side copying
-            # https://github.com/jupyter-widgets/ipywidgets/issues/1891
-            import pyperclip
+            from IPython.display import Javascript  # type: ignore[import-not-found]
         except ImportError:
             return table
 
+        output = widgets.Output(layout=widgets.Layout(display="none"))
         button = widgets.Button(
             description="Copy as Markdown",
             icon="copy",
         )
-        button.on_click(lambda _: pyperclip.copy(self._repr_markdown_()))
-        return widgets.VBox((button, table))
+        copy_md = Javascript(self._clipboard_js("text/markdown"))
+
+        def on_click(_: widgets.Button) -> None:
+            output.clear_output()
+            output.append_display_data(copy_md)
+
+        button.on_click(on_click)
+        return widgets.VBox((button, output, table))
 
 
 def session_info() -> SessionInfo:

@@ -33,7 +33,7 @@ test = [
   # For GitHub report
   "pytest-md",
 ]
-jupyter = ["ipywidgets", "pyperclip"]
+jupyter = ["ipywidgets"]
 
 [project.urls]
 Documentation = "https://github.com/flying-sheep/session-info2#readme"
