@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: "3.12"
         cache: pip
-    - run: pip install -e .[test]
+    - run: pip install -e .[test,jupyter]
     - uses: pavelzw/pytest-action@v2
       with:
         custom-arguments: --color=yes

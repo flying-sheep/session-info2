@@ -36,7 +36,7 @@ from session_info2 import SessionInfo
 def test_repr(
     pkg2dists: dict[str, list[str]],
     user_globals: list[Any],
-    expected: dict[str, str],
+    expected: str,
 ) -> None:
     si = SessionInfo(pkg2dists, {str(i): g for i, g in enumerate(user_globals)})
     assert repr(si) == expected
