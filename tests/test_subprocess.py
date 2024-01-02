@@ -1,6 +1,7 @@
 """Run tests in subprocesses."""
 from __future__ import annotations
 
+import re
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any
 
@@ -20,13 +21,13 @@ async def kernel_client() -> AsyncGenerator[AsyncKernelClient, None]:
     km, kc = await start_new_async_kernel(kernel_name="python3")
     yield kc
     kc.stop_channels()
-    await km.shutdown_kernel()
+    await km.shutdown_kernel()  # pyright: ignore[reportUnknownMemberType]
 
 
 async def execute(kc: AsyncKernelClient, code: str) -> list[dict[str, str]]:
     await kc.wait_for_ready()
     msgs: list[dict[str, Any]] = []
-    reply = await kc.execute_interactive(
+    reply = await kc.execute_interactive(  # pyright: ignore[reportUnknownMemberType]
         code,
         allow_stdin=False,
         output_hook=msgs.append,
@@ -86,4 +87,8 @@ async def test_run(
         "text/html",
         MIME_WIDGET,
     }
-    assert mimebundle["text/plain"] == expected
+    r = mimebundle["text/plain"]
+    pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
+    assert pkgs == expected
+    # No CPU info by default
+    assert re.fullmatch("Python\t[^\n]+\nOS\t[^\n]+\nUpdated\t[^\n]+", info, re.M)

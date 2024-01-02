@@ -92,8 +92,9 @@ class SessionInfo:
     def __repr__(self) -> str:
         """Generate string representation."""
         return "\n----\t----\n".join(
-            "\n".join(f"{k}\t{v}" for k, v in part)
+            part_fmt
             for _, part in self._table_parts().items()
+            if (part_fmt := "\n".join(f"{k}\t{v}" for k, v in part))
         )
 
     @cache
@@ -226,7 +227,7 @@ class SessionInfo:
                         info=dict(parts["Component", "Info"]),
                     ),
                 )
-            case _:
+            case _:  # pyright: ignore[reportUnnecessaryComparison]
                 msg = f"Unknown representation: {rep}"
                 raise ValueError(msg)
 
