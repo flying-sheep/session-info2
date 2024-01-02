@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+env:
+  JUPYTER_PLATFORM_DIRS: '1'
+
 jobs:
   linux:
     runs-on: ubuntu-latest

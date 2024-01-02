@@ -32,6 +32,8 @@ test = [
   "ipykernel",
   # For GitHub report
   "pytest-md",
+  # Example package as “test data”
+  "testing.common.database",
 ]
 jupyter = ["ipywidgets"]
 
@@ -65,13 +67,20 @@ addopts = [
   "--strict-markers",
 ]
 asyncio_mode = "auto"
+filterwarnings = [
+  "error",
+  "ignore:Jupyter is migrating its paths:DeprecationWarning",
+  "ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:dateutil",
+]
 
 [tool.mypy]
 strict = true
+explicit_package_bases = true
 mypy_path = ["$MYPY_CONFIG_FILE_DIR/stubs", "$MYPY_CONFIG_FILE_DIR/src"]
 
 [tool.pyright]
 stubPath = "./stubs"
+reportPrivateUsage = false
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.10", "3.11", "3.12"]

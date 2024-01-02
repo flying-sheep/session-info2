@@ -4,6 +4,7 @@ from importlib.metadata import version
 from typing import Any
 
 import pytest
+import testing.common.database as db
 from jupyter_client.manager import KernelManager, run_kernel
 
 from session_info2 import SessionInfo
@@ -30,6 +31,12 @@ from session_info2 import SessionInfo
             [KernelManager],
             f"jupyter_client\t{version('jupyter-client')}",
             id="class",
+        ),
+        pytest.param(
+            {"testing.common.database": ["testing.common.database"]},
+            [db],
+            f"testing.common.database\t{version('testing.common.database')}",
+            id="namespace_package",
         ),
     ],
 )

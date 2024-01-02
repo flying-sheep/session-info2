@@ -47,28 +47,33 @@ session_info()
 @pytest.mark.parametrize(
     ("code", "expected"),
     [
-        pytest.param("", {"text/plain": ""}, id="empty"),
+        pytest.param("", "", id="empty"),
         pytest.param(
             "import pytest",
-            {"text/plain": f"pytest\t{version('pytest')}"},
+            f"pytest\t{version('pytest')}",
             id="package",
         ),
         pytest.param(
             "from jupyter_client import find_connection_file",
-            {"text/plain": f"jupyter_client\t{version('jupyter-client')}"},
+            f"jupyter_client\t{version('jupyter-client')}",
             id="function",
         ),
         pytest.param(
             "from jupyter_client.client import KernelClient",
-            {"text/plain": f"jupyter_client\t{version('jupyter-client')}"},
+            f"jupyter_client\t{version('jupyter-client')}",
             id="class",
+        ),
+        pytest.param(
+            "import testing.common.database as db",
+            f"testing.common.database\t{version('testing.common.database')}",
+            id="namespace_package",
         ),
     ],
 )
 async def test_run(
     kernel_client: AsyncKernelClient,
     code: str,
-    expected: dict[str, str],
+    expected: str,
 ) -> None:
     await execute(kernel_client, code)
     [mimebundle] = await execute(kernel_client, RUN)
@@ -78,4 +83,4 @@ async def test_run(
         "text/html",
         MIME_WIDGET,
     }
-    assert mimebundle["text/plain"] == expected["text/plain"]
+    assert mimebundle["text/plain"] == expected
