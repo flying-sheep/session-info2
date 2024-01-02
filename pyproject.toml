@@ -70,6 +70,7 @@ asyncio_mode = "auto"
 filterwarnings = [
   "error",
   "ignore:Jupyter is migrating its paths:DeprecationWarning",
+  "ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:dateutil",
 ]
 
 [tool.mypy]
