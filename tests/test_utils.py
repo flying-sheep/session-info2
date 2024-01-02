@@ -1,4 +1,6 @@
 """Test helper utils."""
+from __future__ import annotations
+
 import pytest
 
 from session_info2 import _mods

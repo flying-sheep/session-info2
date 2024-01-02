@@ -1,15 +1,18 @@
 """Run tests in subprocesses."""
+from __future__ import annotations
 
-
-from collections.abc import AsyncGenerator
 from importlib.metadata import version
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from jupyter_client.asynchronous.client import AsyncKernelClient
 from jupyter_client.manager import start_new_async_kernel
 
 from session_info2 import MIME_WIDGET
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from jupyter_client.asynchronous.client import AsyncKernelClient
 
 
 @pytest.fixture()
