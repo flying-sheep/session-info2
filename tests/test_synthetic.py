@@ -1,5 +1,7 @@
 """Run tests with artificial data."""
+from __future__ import annotations
 
+import re
 from importlib.metadata import version
 from typing import Any
 
@@ -46,7 +48,12 @@ def test_repr(
     expected: str,
 ) -> None:
     si = SessionInfo(pkg2dists, {str(i): g for i, g in enumerate(user_globals)})
-    assert repr(si) == expected
+    r = repr(si)
+    pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
+    assert pkgs == expected
+    assert re.fullmatch(
+        "Python\t[^\n]+\nOS\t[^\n]+\nCPU\t[^\n]+\nUpdated\t[^\n]+", info, re.M
+    )
 
 
 @pytest.mark.parametrize(
@@ -74,12 +81,24 @@ def test_markdown(
     expected: list[str],
 ) -> None:
     si = SessionInfo(pkg2dists, {str(i): g for i, g in enumerate(user_globals)})
-    header, sep, *rows = si._repr_markdown_().splitlines()  # noqa: SLF001
-    if pkg2dists:
-        [[pkg_name]] = pkg2dists.values()
-        extra = len(pkg_name) - 7
+    parts = si._repr_markdown_().split("\n\n")  # noqa: SLF001
+    if len(parts) > 1:
+        pkg_str, info_str = parts
+
+        pkg_header, pkg_sep, *pkg_rows = pkg_str.splitlines()
+        if pkg2dists:
+            [[pkg_name]] = pkg2dists.values()
+            pkg_extra = len(pkg_name) - len("Package")
+        else:
+            pkg_extra = 0
+        assert pkg_header == f"| Package{' ' * pkg_extra} | Version |"
+        assert pkg_sep == f"| -------{'-' * pkg_extra} | ------- |"
+        assert pkg_rows == expected
     else:
-        extra = 0
-    assert header == f"| Package{' ' * extra} | Version |"
-    assert sep == f"| -------{'-' * extra} | ------- |"
-    assert rows == expected
+        [info_str] = parts
+
+    info_header, info_sep, *info_rows = info_str.splitlines()
+    info_extra = max(len(r.split("|")[2].strip()) for r in info_rows) - len("Info")
+    assert info_header == f"| Component | Info{' ' * info_extra} |"
+    assert info_sep == f"| --------- | ----{'-' * info_extra} |"
+    # info_rows content is already tested for plain text, no need to test it again

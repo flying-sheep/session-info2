@@ -115,6 +115,7 @@ ignore = [
 ]
 [tool.ruff.lint.isort]
 known-first-party = ["session_info2"]
+required-imports = ["from __future__ import annotations"]
 
 [tool.coverage.run]
 source_pkgs = ["session_info2", "tests"]
