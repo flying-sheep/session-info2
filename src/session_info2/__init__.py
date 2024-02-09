@@ -102,6 +102,7 @@ class SessionInfo:
             and (v := getattr(pkg, "__version__", None))
         }
         if all(v_attr == v_meta for v_attr in vs_attr.values()):
+            # This branch is also hit if there are no __version__ attributes
             return v_meta
         if len(vs_attr) == 1:
             v_attr = next(iter(vs_attr.values()))
