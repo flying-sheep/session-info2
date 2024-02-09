@@ -16,24 +16,9 @@ if TYPE_CHECKING:
     ("pkg2dists", "imports", "expected"),
     [
         pytest.param({}, {}, "", id="empty"),
-        pytest.param(
-            dict(basic=["basic"]),
-            ["basic"],
-            "basic\t1.0",
-            id="package",
-        ),
-        pytest.param(
-            dict(basic=["basic"]),
-            ["basic:fn"],
-            "basic\t1.0",
-            id="function",
-        ),
-        pytest.param(
-            dict(basic=["basic"]),
-            ["basic:Cls"],
-            "basic\t1.0",
-            id="class",
-        ),
+        pytest.param(dict(basic=["basic"]), ["basic"], "basic\t1.0", id="package"),
+        pytest.param(dict(basic=["basic"]), ["basic:fn"], "basic\t1.0", id="function"),
+        pytest.param(dict(basic=["basic"]), ["basic:Cls"], "basic\t1.0", id="class"),
         pytest.param(
             dict(namespace=["namespace.package"]),
             ["namespace.package"],
