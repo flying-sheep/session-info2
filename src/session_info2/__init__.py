@@ -9,7 +9,7 @@ from functools import cached_property
 from importlib.metadata import packages_distributions, version
 from multiprocessing import cpu_count
 from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from ._repr import repr_mimebundle as _repr_mimebundle
 from ._widget import widget as _widget
@@ -17,6 +17,11 @@ from ._widget import widget as _widget
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Mapping, Sequence
     from collections.abc import Set as AbstractSet
+
+    _TableHeader: TypeAlias = (
+        tuple[Literal["Package"], Literal["Version"]]
+        | tuple[Literal["Component"], Literal["Info"]]
+    )
 
 
 # TODO: make this configurable
@@ -59,7 +64,7 @@ class SessionInfo:
 
     @cached_property
     def imported_dists(self) -> AbstractSet[str]:
-        """Calculate package versions."""
+        """Get ordered set of imported distributions."""
         # Use dict for preserving insertion order
         imported: dict[str, None] = {}
         for obj in self.user_globals.values():
@@ -77,9 +82,7 @@ class SessionInfo:
         pkg2dists = tuple((pkg, *ds) for pkg, ds in self.pkg2dists.items())
         return hash((pkg2dists, tuple(self.imported_dists)))
 
-    def _table_parts(
-        self,
-    ) -> dict[tuple[str, str], Iterable[tuple[str, str]]]:
+    def _table_parts(self) -> dict[_TableHeader, Iterable[tuple[str, str]]]:
         return {
             ("Package", "Version"): ((d, str(version(d))) for d in self.imported_dists),
             ("Component", "Info"): self.info._table(),  # noqa: SLF001
@@ -108,7 +111,7 @@ def session_info(*, os: bool = True, cpu: bool = False) -> SessionInfo:
     return SessionInfo(pkg2dists, user_globals, info=info)
 
 
-def _get_module_name(obj: Any) -> str:  # noqa: ANN401
+def _get_module_name(obj: object) -> str:
     """Get module name."""
     if isinstance(obj, ModuleType):
         return obj.__name__
