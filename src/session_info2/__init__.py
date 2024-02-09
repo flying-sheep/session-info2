@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import platform
 import sys
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import cached_property
 from importlib.metadata import packages_distributions, version
 from multiprocessing import cpu_count
-from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from types import MappingProxyType, ModuleType
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from ._repr import repr_mimebundle as _repr_mimebundle
 from ._widget import widget as _widget
@@ -17,6 +18,11 @@ from ._widget import widget as _widget
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Mapping, Sequence
     from collections.abc import Set as AbstractSet
+
+    _TableHeader: TypeAlias = (
+        tuple[Literal["Package"], Literal["Version"]]
+        | tuple[Literal["Component"], Literal["Info"]]
+    )
 
 
 # TODO: make this configurable
@@ -58,8 +64,17 @@ class SessionInfo:
     info: _AdditionalInfo = field(default_factory=_AdditionalInfo)
 
     @cached_property
+    def dist2pkgs(self) -> Mapping[str, frozenset[str]]:
+        """Get mapping of distributions to packages."""
+        d2ps: defaultdict[str, set[str]] = defaultdict(set)
+        for pkg, dists in self.pkg2dists.items():
+            for dist in dists:
+                d2ps[dist].add(pkg)
+        return MappingProxyType({d: frozenset(pkgs) for d, pkgs in d2ps.items()})
+
+    @cached_property
     def imported_dists(self) -> AbstractSet[str]:
-        """Calculate package versions."""
+        """Get ordered set of imported distributions."""
         # Use dict for preserving insertion order
         imported: dict[str, None] = {}
         for obj in self.user_globals.values():
@@ -77,11 +92,28 @@ class SessionInfo:
         pkg2dists = tuple((pkg, *ds) for pkg, ds in self.pkg2dists.items())
         return hash((pkg2dists, tuple(self.imported_dists)))
 
-    def _table_parts(
-        self,
-    ) -> dict[tuple[str, str], Iterable[tuple[str, str]]]:
+    def _version(self, dist: str) -> str:
+        """Get version(s) of imported distribution."""
+        v_meta = version(dist)
+        vs_attr = {
+            pkg_name: v
+            for pkg_name in self.dist2pkgs[dist]
+            if (pkg := sys.modules.get(pkg_name))
+            and (v := getattr(pkg, "__version__", None))
+        }
+        if all(v_attr == v_meta for v_attr in vs_attr.values()):
+            # This branch is also hit if there are no __version__ attributes
+            return v_meta
+        if len(vs_attr) == 1:
+            v_attr = next(iter(vs_attr.values()))
+            return f"{v_meta} ({v_attr})"
+        return f"{v_meta} ({', '.join(f'{pkg}: {v}' for pkg, v in vs_attr.items())})"
+
+    def _table_parts(self) -> dict[_TableHeader, Iterable[tuple[str, str]]]:
         return {
-            ("Package", "Version"): ((d, str(version(d))) for d in self.imported_dists),
+            ("Package", "Version"): (
+                (d, self._version(d)) for d in self.imported_dists
+            ),
             ("Component", "Info"): self.info._table(),  # noqa: SLF001
         }
 
@@ -108,7 +140,7 @@ def session_info(*, os: bool = True, cpu: bool = False) -> SessionInfo:
     return SessionInfo(pkg2dists, user_globals, info=info)
 
 
-def _get_module_name(obj: Any) -> str:  # noqa: ANN401
+def _get_module_name(obj: object) -> str:
     """Get module name."""
     if isinstance(obj, ModuleType):
         return obj.__name__

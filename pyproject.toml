@@ -101,6 +101,7 @@ ignore = [
   "D105",   # Missing docstring in magic method
   "S101",   # Use of assert
   "INP001", # __init__.py
+  "RUF018", # assert with := is fine
 ]
 [tool.ruff.lint.isort]
 known-first-party = ["session_info2"]

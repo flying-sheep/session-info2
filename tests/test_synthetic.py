@@ -2,52 +2,45 @@
 from __future__ import annotations
 
 import re
-from importlib.metadata import version
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-import testing.common.database as db
-from jupyter_client.manager import KernelManager, run_kernel
 
 from session_info2 import SessionInfo, _repr
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 
 @pytest.mark.parametrize(
-    ("pkg2dists", "user_globals", "expected"),
+    ("pkg2dists", "imports", "expected"),
     [
         pytest.param({}, {}, "", id="empty"),
+        pytest.param(dict(basic=["basic"]), ["basic"], "basic\t1.0", id="package"),
+        pytest.param(dict(basic=["basic"]), ["basic:fn"], "basic\t1.0", id="function"),
+        pytest.param(dict(basic=["basic"]), ["basic:Cls"], "basic\t1.0", id="class"),
         pytest.param(
-            dict(pytest=["pytest"]),
-            [pytest],
-            f"pytest\t{version('pytest')}",
-            id="package",
-        ),
-        pytest.param(
-            dict(jupyter_client=["jupyter_client"]),
-            [run_kernel],
-            f"jupyter_client\t{version('jupyter-client')}",
-            id="function",
-        ),
-        pytest.param(
-            dict(jupyter_client=["jupyter_client"]),
-            [KernelManager],
-            f"jupyter_client\t{version('jupyter-client')}",
-            id="class",
-        ),
-        pytest.param(
-            {"testing.common.database": ["testing.common.database"]},
-            [db],
-            f"testing.common.database\t{version('testing.common.database')}",
+            dict(namespace=["namespace.package"]),
+            ["namespace.package"],
+            "namespace.package\t2.2.1",
             id="namespace_package",
+        ),
+        pytest.param(
+            dict(mis_match=["mismatch"]),
+            ["mis_match"],
+            "mismatch\t1.1 (1.1.post0.dev0)",
+            id="mismatch",
         ),
     ],
 )
 def test_repr(
+    import_path: Callable[[str], Any],
     pkg2dists: dict[str, list[str]],
-    user_globals: list[Any],
+    imports: list[str],
     expected: str,
 ) -> None:
-    si = SessionInfo(pkg2dists, {str(i): g for i, g in enumerate(user_globals)})
+    user_globals = {re.split(r"[.:]", p)[-1]: import_path(p) for p in imports}
+    si = SessionInfo(pkg2dists, user_globals)
     r = repr(si)
     pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
     assert pkgs == expected
@@ -57,30 +50,32 @@ def test_repr(
 
 
 @pytest.mark.parametrize(
-    ("pkg2dists", "user_globals", "expected"),
+    ("pkg2dists", "imports", "expected"),
     [
         pytest.param({}, {}, [], id="empty"),
         pytest.param(
-            dict(pytest=["pytest"]),
-            [pytest],
-            [f"| pytest  | {version('pytest'):<7} |"],
+            dict(basic=["basic"]),
+            ["basic"],
+            ["| basic   | 1.0     |"],
             id="package",
         ),
         pytest.param(
-            dict(jupyter_client=["jupyter_client"]),
-            [run_kernel],
-            [f"| jupyter_client | {version('jupyter-client'):<7} |"],
+            dict(basic=["basic"]),
+            ["basic:fn"],
+            ["| basic   | 1.0     |"],
             id="function",
         ),
         # no need to test class again
     ],
 )
 def test_markdown(
+    import_path: Callable[[str], Any],
     pkg2dists: dict[str, list[str]],
-    user_globals: list[Any],
+    imports: list[str],
     expected: list[str],
 ) -> None:
-    si = SessionInfo(pkg2dists, {str(i): g for i, g in enumerate(user_globals)})
+    user_globals = {re.split(r"[.:]", p)[-1]: import_path(p) for p in imports}
+    si = SessionInfo(pkg2dists, user_globals)
     parts = _repr.repr_markdown(si).split("\n\n")
     if len(parts) > 1:
         pkg_str, info_str = parts

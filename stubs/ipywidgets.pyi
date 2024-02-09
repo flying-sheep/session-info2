@@ -11,7 +11,7 @@ class Widget:
         self,
         include: Container[str] | None = None,
         exclude: Container[str] | None = None,
-        **kwargs: Any,  # noqa: ANN401
+        **kwargs: object,
     ) -> dict[str, Any]: ...
 
 @dataclass

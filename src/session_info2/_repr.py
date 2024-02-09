@@ -4,24 +4,24 @@ import json
 import traceback
 from textwrap import dedent, indent
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias, get_args
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Container, Iterable, Mapping
 
     from . import SessionInfo
 
-MimeWidget = Literal["application/vnd.jupyter.widget-view+json"]
-MIME_WIDGET: MimeWidget = get_args(MimeWidget)[0]
+    MimeWidget = Literal["application/vnd.jupyter.widget-view+json"]
 
+    SupportedMime: TypeAlias = Literal[
+        "text/plain",
+        "text/markdown",
+        "text/html",
+        "application/json",
+        MimeWidget,
+    ]
 
-SupportedMime: TypeAlias = Literal[
-    "text/plain",
-    "text/markdown",
-    "text/html",
-    "application/json",
-    MimeWidget,
-]
+MIME_WIDGET: MimeWidget = "application/vnd.jupyter.widget-view+json"
 
 
 def repr_markdown(si: SessionInfo) -> str:
@@ -112,7 +112,7 @@ def repr_mimebundle(
     si: SessionInfo,
     include: Container[str] | None = None,
     exclude: Container[str] | None = None,
-    **_kwargs: Any,  # noqa: ANN401
+    **_kwargs: object,
 ) -> dict[SupportedMime, Any]:
     mb: dict[SupportedMime, Any] = {}
     for mime, repr_fn in MIME_REPRS.items():
