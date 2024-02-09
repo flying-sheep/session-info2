@@ -9,9 +9,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
 keywords = ["jupyter", "session-info"]
-authors = [
-  { name = "Philipp A.", email = "flying-sheep@web.de" },
-]
+authors = [{ name = "Philipp A.", email = "flying-sheep@web.de" }]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -52,20 +50,11 @@ JUPYTER_PLATFORM_DIRS = "1"
 [tool.hatch.envs.default.scripts]
 test = "pytest -vv {args}"
 test-cov = "coverage run -m pytest {args}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
+cov-report = ["- coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
 
 [tool.pytest.ini_options]
-addopts = [
-  "--import-mode=importlib",
-  "--strict-markers",
-]
+addopts = ["--import-mode=importlib", "--strict-markers"]
 asyncio_mode = "auto"
 filterwarnings = [
   "error",
@@ -107,11 +96,11 @@ ignore = [
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-  "D102",  # Missing docstring in public method
-  "D103",  # Missing docstring in public function
-  "D105",  # Missing docstring in magic method
-  "S101",  # Use of assert
-  "INP001",  # __init__.py
+  "D102",   # Missing docstring in public method
+  "D103",   # Missing docstring in public function
+  "D105",   # Missing docstring in magic method
+  "S101",   # Use of assert
+  "INP001", # __init__.py
 ]
 [tool.ruff.lint.isort]
 known-first-party = ["session_info2"]
@@ -121,16 +110,11 @@ required-imports = ["from __future__ import annotations"]
 source_pkgs = ["session_info2", "tests"]
 branch = true
 parallel = true
-omit = [
-]
+omit = []
 
 [tool.coverage.paths]
 session_info2 = ["src/session_info2", "*/session-info2/src/session_info2"]
 tests = ["tests", "*/session-info2/tests"]
 
 [tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
