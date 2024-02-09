@@ -25,6 +25,12 @@ if TYPE_CHECKING:
             "namespace.package\t2.2.1",
             id="namespace_package",
         ),
+        pytest.param(
+            dict(mis_match=["mismatch"]),
+            ["mis_match"],
+            "mismatch\t1.1 (1.1.post0.dev0)",
+            id="mismatch",
+        ),
     ],
 )
 def test_repr(
