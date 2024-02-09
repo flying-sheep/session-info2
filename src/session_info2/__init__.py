@@ -1,30 +1,27 @@
 """Print versions of imported packages."""
 from __future__ import annotations
 
-import json
 import platform
 import sys
-import traceback
-from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from functools import cache, cached_property
+from functools import cached_property
 from importlib.metadata import packages_distributions, version
 from multiprocessing import cpu_count
-from textwrap import dedent, indent
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any
+
+from ._repr import repr_mimebundle as _repr_mimebundle
+from ._widget import widget as _widget
 
 if TYPE_CHECKING:
-    from collections.abc import Container, Generator, Mapping, Sequence
+    from collections.abc import Generator, Iterable, Mapping, Sequence
     from collections.abc import Set as AbstractSet
 
-    from ipywidgets import Widget
 
 # TODO: make this configurable
 # https://github.com/flying-sheep/session-info2/issues/6
 IGNORED = frozenset({"ipython"})
-MIME_WIDGET = "application/vnd.jupyter.widget-view+json"
 
 
 @dataclass
@@ -88,7 +85,6 @@ class SessionInfo:
             ("Component", "Info"): self.info._table(),  # noqa: SLF001
         }
 
-    @cache  # type: ignore[misc,unused-ignore]
     def __repr__(self) -> str:
         """Generate string representation."""
         return "\n----\t----\n".join(
@@ -97,141 +93,8 @@ class SessionInfo:
             if (part_fmt := "\n".join(f"{k}\t{v}" for k, v in part))
         )
 
-    @cache
-    def _repr_markdown_(self) -> str:
-        """Generate Markdown representation."""
-        # no extra lines possible in markdown tables, so do multiple tables
-        return "\n\n".join(
-            part
-            for header, rows in self._table_parts().items()
-            if (part := self._fmt_markdown(header, rows))
-        )
-
-    @staticmethod
-    def _fmt_markdown(header: tuple[str, str], rows: Iterable[tuple[str, str]]) -> str:
-        rows = list(rows)
-        if not rows:
-            return ""
-        widths = [
-            max(len(e) for e in col) for col in zip(*(header, *rows), strict=True)
-        ]
-        row_template = "| " + " | ".join(f"{{:<{w}}}" for w in widths) + " |"
-        sep = row_template.format(*(("-" * w) for w in widths))
-        rows_fmt = "\n".join(row_template.format(*row) for row in rows)
-        return f"{row_template.format(*header)}\n{sep}\n{rows_fmt}"
-
-    @cache
-    def _repr_html_(self, *, add_details: bool = True) -> str:
-        """Generate static HTML representation."""
-        rows = "\n".join(
-            part
-            for header, rows in self._table_parts().items()
-            if (part := self._fmt_html(header, rows))
-        )
-        table = dedent(
-            f"""
-            <table class=table>
-                {indent(rows, "    ")}
-            </table>
-            """,
-        ).strip()
-        if not add_details:
-            return table
-        return dedent(
-            f"""
-            {table}
-            <details>
-                <summary>Copyable Markdown</summary>
-                <pre>{self._repr_markdown_()}</pre>
-            </details>
-            """,
-        ).strip()
-
-    @staticmethod
-    def _fmt_html(header: tuple[str, str], rows: Iterable[tuple[str, str]]) -> str:
-        trs = "\n".join(f"<tr><td>{k}</td><td>{v}</td></tr>" for k, v in rows)
-        if not trs:
-            return ""
-        th = f"<tr><th>{header[0]}</th><th>{header[1]}</th></tr>"
-        return f"{th}\n{trs}"
-
-    def _repr_mimebundle_(
-        self,
-        include: Container[str] | None = None,
-        exclude: Container[str] | None = None,
-        **_kwargs: Any,  # noqa: ANN401
-    ) -> dict[str, Any]:
-        mb: dict[str, Any] = {}
-        for mime, d in (
-            ("text/plain", self.__repr__),
-            ("text/markdown", self._repr_markdown_),
-            ("text/html", self._repr_html_),
-            (MIME_WIDGET, lambda: self.widget()._repr_mimebundle_()[MIME_WIDGET]),  # noqa: SLF001
-        ):
-            if include is not None and mime not in include:
-                continue
-            if exclude is not None and mime in exclude:
-                continue
-            try:
-                mb[mime] = cast(Callable[[], str], d)()
-            except ImportError:
-                traceback.print_exc()
-        return mb
-
-    def widget(self) -> Widget:
-        """Generate interactive HTML representation."""
-        import ipywidgets as widgets
-
-        try:
-            from IPython.display import Javascript  # type: ignore[import-not-found]
-        except ImportError:
-            return widgets.HTML(value=self._repr_html_())
-
-        button = widgets.Button(
-            description="Copy as Markdown",
-            icon="copy",
-        )
-        output = widgets.Output(layout=widgets.Layout(display="none"))
-        copy_md = Javascript(self._clipboard_js("text/markdown"))
-
-        def on_click(_: widgets.Button) -> None:
-            output.clear_output()
-            output.append_display_data(copy_md)
-
-        button.on_click(on_click)
-
-        table = widgets.HTML(value=self._repr_html_(add_details=False))
-        return widgets.VBox((button, output, table))
-
-    @cache
-    def _clipboard_js(
-        self,
-        rep: Literal["text/plain", "text/markdown", "text/html", "application/json"],
-    ) -> str:
-        """Javascript to copy representation to clipboard."""
-        match rep:
-            case "text/plain":
-                r = repr(self)
-            case "text/markdown":
-                r = self._repr_markdown_()
-            case "text/html":
-                r = self._repr_html_()
-            case "application/json":
-                parts = self._table_parts()
-                r = json.dumps(
-                    dict(
-                        packages=[
-                            dict(package=k, version=v)
-                            for k, v in parts["Package", "Version"]
-                        ],
-                        info=dict(parts["Component", "Info"]),
-                    ),
-                )
-            case _:  # pyright: ignore[reportUnnecessaryComparison]
-                msg = f"Unknown representation: {rep}"
-                raise ValueError(msg)
-
-        return f"navigator.clipboard.writeText({json.dumps(r)})"
+    _repr_mimebundle_ = _repr_mimebundle
+    widget = _widget
 
 
 def session_info(*, os: bool = True, cpu: bool = False) -> SessionInfo:

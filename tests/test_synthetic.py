@@ -9,7 +9,7 @@ import pytest
 import testing.common.database as db
 from jupyter_client.manager import KernelManager, run_kernel
 
-from session_info2 import SessionInfo
+from session_info2 import SessionInfo, _repr
 
 
 @pytest.mark.parametrize(
@@ -81,7 +81,7 @@ def test_markdown(
     expected: list[str],
 ) -> None:
     si = SessionInfo(pkg2dists, {str(i): g for i, g in enumerate(user_globals)})
-    parts = si._repr_markdown_().split("\n\n")  # noqa: SLF001
+    parts = _repr.repr_markdown(si).split("\n\n")
     if len(parts) > 1:
         pkg_str, info_str = parts
 

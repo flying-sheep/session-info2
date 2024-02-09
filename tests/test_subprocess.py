@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from jupyter_client.manager import start_new_async_kernel
 
-from session_info2 import MIME_WIDGET
+from session_info2._repr import MIME_WIDGET
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -85,6 +85,7 @@ async def test_run(
         "text/plain",
         "text/markdown",
         "text/html",
+        "application/json",
         MIME_WIDGET,
     }
     r = mimebundle["text/plain"]
