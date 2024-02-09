@@ -16,15 +16,15 @@ DATA_DIR = Path(__file__).parent / "data"
 
 
 @pytest.fixture()
-def test_libdir(monkeypatch: pytest.MonkeyPatch) -> Path:
+def libdir_test(monkeypatch: pytest.MonkeyPatch) -> Path:
     """Prepend the data dir to sys.path and mark sys.modules for restoring."""
     monkeypatch.syspath_prepend(str(DATA_DIR))
     return DATA_DIR
 
 
 @pytest.fixture()
-def import_path(test_libdir: Path) -> Generator[Callable[[str], Any], None, None]:
-    del test_libdir  # used for side effects
+def import_path(libdir_test: Path) -> Generator[Callable[[str], Any], None, None]:
+    del libdir_test  # used for side effects
     added_modules: set[str] = set()
 
     def import_path(path: str) -> Any:  # noqa: ANN401

@@ -18,13 +18,13 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture()
-async def kernel_client(test_libdir: Path) -> AsyncGenerator[AsyncKernelClient, None]:
+async def kernel_client(libdir_test: Path) -> AsyncGenerator[AsyncKernelClient, None]:
     km, kc = await start_new_async_kernel(kernel_name="python3")
     await execute(
         kc,
         f"""
         import sys
-        sys.path.insert(0, {json.dumps(str(test_libdir))})
+        sys.path.insert(0, {json.dumps(str(libdir_test))})
         del sys
         """,
     )
