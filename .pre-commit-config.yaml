@@ -5,13 +5,13 @@ repos:
   - id: trailing-whitespace
   - id: end-of-file-fixer
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.2.0
+  rev: v0.2.1
   hooks:
   - id: ruff
     args: [--fix]
   - id: ruff-format
 - repo: https://github.com/redeboer/taplo-pre-commit
-  rev: v0.9.1rc1
+  rev: 0.9.1rc1
   hooks:
     - id: taplo
 - repo: https://github.com/pre-commit/mirrors-mypy
