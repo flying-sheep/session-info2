@@ -1,4 +1,5 @@
 """Run tests with artificial data."""
+
 from __future__ import annotations
 
 import re
