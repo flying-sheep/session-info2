@@ -1,4 +1,5 @@
 """Print versions of imported packages."""
+
 from __future__ import annotations
 
 import platform

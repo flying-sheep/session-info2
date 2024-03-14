@@ -17,30 +17,42 @@ class Widget:
 @dataclass
 class Layout(Widget):
     _ = KW_ONLY
-    align_content: Literal[
-        "flex-start",
-        "flex-end",
-        "center",
-        "space-between",
-        "space-around",
-        "space-evenly",
-        "stretch",
-    ] | _CssProperties | None = None
-    align_items: Literal[
-        "flex-start",
-        "flex-end",
-        "center",
-        "baseline",
-        "stretch",
-    ] | _CssProperties | None = None
-    align_self: Literal[
-        "auto",
-        "flex-start",
-        "flex-end",
-        "center",
-        "baseline",
-        "stretch",
-    ] | _CssProperties | None = None
+    align_content: (
+        Literal[
+            "flex-start",
+            "flex-end",
+            "center",
+            "space-between",
+            "space-around",
+            "space-evenly",
+            "stretch",
+        ]
+        | _CssProperties
+        | None
+    ) = None
+    align_items: (
+        Literal[
+            "flex-start",
+            "flex-end",
+            "center",
+            "baseline",
+            "stretch",
+        ]
+        | _CssProperties
+        | None
+    ) = None
+    align_self: (
+        Literal[
+            "auto",
+            "flex-start",
+            "flex-end",
+            "center",
+            "baseline",
+            "stretch",
+        ]
+        | _CssProperties
+        | None
+    ) = None
     border_top: str | None = None
     border_right: str | None = None
     border_bottom: str | None = None
@@ -50,18 +62,26 @@ class Layout(Widget):
     flex: str | None = None
     flex_flow: str | None = None
     height: str | None = None
-    justify_content: Literal[
-        "flex-start",
-        "flex-end",
-        "center",
-        "space-between",
-        "space-around",
-    ] | _CssProperties | None = None
-    justify_items: Literal[
-        "flex-start",
-        "flex-end",
-        "center",
-    ] | _CssProperties | None = None
+    justify_content: (
+        Literal[
+            "flex-start",
+            "flex-end",
+            "center",
+            "space-between",
+            "space-around",
+        ]
+        | _CssProperties
+        | None
+    ) = None
+    justify_items: (
+        Literal[
+            "flex-start",
+            "flex-end",
+            "center",
+        ]
+        | _CssProperties
+        | None
+    ) = None
     left: str | None = None
     margin: str | None = None
     max_height: str | None = None
@@ -76,22 +96,30 @@ class Layout(Widget):
     visibility: Literal["visible", "hidden"] | _CssProperties | None = None
     width: str | None = None
 
-    object_fit: Literal[
-        "contain",
-        "cover",
-        "fill",
-        "scale-down",
-        "none",
-    ] | _CssProperties | None = None
+    object_fit: (
+        Literal[
+            "contain",
+            "cover",
+            "fill",
+            "scale-down",
+            "none",
+        ]
+        | _CssProperties
+        | None
+    ) = None
     object_position: str | None = None
 
     grid_auto_columns: str | None = None
-    grid_auto_flow: Literal[
-        "column",
-        "row",
-        "row dense",
-        "column dense",
-    ] | _CssProperties | None = None
+    grid_auto_flow: (
+        Literal[
+            "column",
+            "row",
+            "row dense",
+            "column dense",
+        ]
+        | _CssProperties
+        | None
+    ) = None
     grid_auto_rows: str | None = None
     grid_gap: str | None = None
     grid_template_rows: str | None = None
