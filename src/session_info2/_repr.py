@@ -93,7 +93,7 @@ def repr_json(si: SessionInfo) -> str:
 
 
 def repr_widget(si: SessionInfo) -> dict[str, str]:
-    widget_bundle = si.widget()._repr_mimebundle_()  # noqa: SLF001
+    widget_bundle = si.widget()._repr_mimebundle_()
     return widget_bundle[MIME_WIDGET]  # type: ignore[no-any-return]
 
 
