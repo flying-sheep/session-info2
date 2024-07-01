@@ -90,4 +90,6 @@ async def test_run(
     pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
     assert pkgs == expected
     # No CPU info by default
-    assert re.fullmatch("Python\t[^\n]+\nOS\t[^\n]+\nUpdated\t[^\n]+", info, re.M)
+    assert re.fullmatch(
+        "Python\t[^\n]+\nOS\t[^\n]+\nUpdated\t[^\n]+", info, re.MULTILINE
+    )
