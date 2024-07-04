@@ -43,15 +43,9 @@ Source = "https://github.com/flying-sheep/session-info2"
 [tool.hatch.version]
 source = "vcs"
 
-[tool.hatch.envs.default]
+[tool.hatch.envs.hatch-test]
+default-args = []
 features = ["test", "jupyter"]
-[tool.hatch.envs.default.env-vars]
-JUPYTER_PLATFORM_DIRS = "1"
-[tool.hatch.envs.default.scripts]
-test = "pytest -vv {args}"
-test-cov = "coverage run -m pytest {args}"
-cov-report = ["- coverage combine", "coverage report"]
-cov = ["test-cov", "cov-report"]
 
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib", "--strict-markers"]
