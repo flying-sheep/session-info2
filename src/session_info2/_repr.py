@@ -84,12 +84,19 @@ def repr_json(si: SessionInfo) -> str:
     parts = si._table_parts()  # noqa: SLF001
     return json.dumps(
         dict(
-            packages=[
-                dict(package=k, version=v) for k, v in parts["Package", "Version"]
-            ],
+            packages=_repr_json_part(parts["Package", "Version"]),
+            **(
+                dict(dependencies=_repr_json_part(parts["Dependency", "Version"]))
+                if ("Dependency", "Version") in parts
+                else {}
+            ),
             info=dict(parts["Component", "Info"]),
         ),
     )
+
+
+def _repr_json_part(rows: Iterable[tuple[str, str]]) -> list[dict[str, str]]:
+    return [dict(package=k, version=v) for k, v in rows]
 
 
 def repr_widget(si: SessionInfo) -> dict[str, str]:

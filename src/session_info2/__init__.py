@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
     _TableHeader: TypeAlias = (
         tuple[Literal["Package"], Literal["Version"]]
+        | tuple[Literal["Dependency"], Literal["Version"]]
         | tuple[Literal["Component"], Literal["Info"]]
     )
 
@@ -61,6 +62,7 @@ class SessionInfo:
 
     pkg2dists: Mapping[str, Sequence[str]]
     user_globals: Mapping[str, Any]
+    dependencies: bool | None = None
 
     info: _AdditionalInfo = field(default_factory=_AdditionalInfo)
 
@@ -91,7 +93,7 @@ class SessionInfo:
     def __hash__(self) -> int:
         """Generate hash value."""
         pkg2dists = tuple((pkg, *ds) for pkg, ds in self.pkg2dists.items())
-        return hash((pkg2dists, tuple(self.imported_dists)))
+        return hash((pkg2dists, tuple(self.imported_dists), self.dependencies))
 
     def _version(self, dist: str) -> str:
         """Get version(s) of imported distribution."""
@@ -110,11 +112,21 @@ class SessionInfo:
             return f"{v_meta} ({v_attr})"
         return f"{v_meta} ({', '.join(f'{pkg}: {v}' for pkg, v in vs_attr.items())})"
 
-    def _table_parts(self) -> dict[_TableHeader, Iterable[tuple[str, str]]]:
+    def _table_parts(
+        self, *, deps_default: bool = True
+    ) -> dict[_TableHeader, Iterable[tuple[str, str]]]:
+        deps: dict[_TableHeader, Iterable[tuple[str, str]]] = {}
+        if (self.dependencies or (self.dependencies is None and deps_default)) and (
+            deps_dists := self.dist2pkgs.keys() - self.imported_dists
+        ):
+            deps = {
+                ("Dependency", "Version"): ((d, self._version(d)) for d in deps_dists)
+            }
         return {
             ("Package", "Version"): (
                 (d, self._version(d)) for d in self.imported_dists
             ),
+            **deps,
             ("Component", "Info"): self.info._table(),  # noqa: SLF001
         }
 
@@ -122,7 +134,7 @@ class SessionInfo:
         """Generate string representation."""
         return "\n----\t----\n".join(
             part_fmt
-            for _, part in self._table_parts().items()
+            for _, part in self._table_parts(deps_default=False).items()
             if (part_fmt := "\n".join(f"{k}\t{v}" for k, v in part))
         )
 
@@ -130,7 +142,9 @@ class SessionInfo:
     widget = _widget
 
 
-def session_info(*, os: bool = True, cpu: bool = False) -> SessionInfo:
+def session_info(
+    *, os: bool = True, cpu: bool = False, dependencies: bool | None = None
+) -> SessionInfo:
     """Print versions of imported packages."""
     pkg2dists = packages_distributions()
     user_globals = vars(sys.modules["__main__"])
@@ -138,7 +152,7 @@ def session_info(*, os: bool = True, cpu: bool = False) -> SessionInfo:
         **({} if os else dict(os=None)),  # type: ignore[arg-type]
         **({} if cpu else dict(cpu=None)),  # type: ignore[arg-type]
     )
-    return SessionInfo(pkg2dists, user_globals, info=info)
+    return SessionInfo(pkg2dists, user_globals, dependencies=dependencies, info=info)
 
 
 def _get_module_name(obj: object) -> str:

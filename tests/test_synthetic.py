@@ -51,7 +51,7 @@ def test_repr(
 
 
 @pytest.mark.parametrize(
-    ("pkg2dists", "imports", "expected"),
+    ("pkg2dists", "imports", "pkgs_expected"),
     [
         pytest.param({}, {}, [], id="empty"),
         pytest.param(
@@ -69,29 +69,58 @@ def test_repr(
         # no need to test class again
     ],
 )
+@pytest.mark.parametrize(
+    ("dep2dists", "deps_expected"),
+    [
+        pytest.param({}, [], id="no_deps"),
+        pytest.param(dict(dep=["dep"]), ["| dep        | 0.3     |"], id="with_dep"),
+    ],
+)
 def test_markdown(
+    *,
     import_path: Callable[[str], Any],
     pkg2dists: dict[str, list[str]],
+    dep2dists: dict[str, list[str]],
     imports: list[str],
-    expected: list[str],
+    pkgs_expected: list[str],
+    deps_expected: list[str],
 ) -> None:
     user_globals = {re.split(r"[.:]", p)[-1]: import_path(p) for p in imports}
-    si = SessionInfo(pkg2dists, user_globals)
-    parts = _repr.repr_markdown(si).split("\n\n")
-    if len(parts) > 1:
-        pkg_str, info_str = parts
 
-        pkg_header, pkg_sep, *pkg_rows = pkg_str.splitlines()
-        if pkg2dists:
-            [[pkg_name]] = pkg2dists.values()
-            pkg_extra = len(pkg_name) - len("Package")
-        else:
-            pkg_extra = 0
-        assert pkg_header == f"| Package{' ' * pkg_extra} | Version |"
-        assert pkg_sep == f"| -------{'-' * pkg_extra} | ------- |"
-        assert pkg_rows == expected
-    else:
+    si = SessionInfo(pkg2dists | dep2dists, user_globals)
+    parts = _repr.repr_markdown(si).split("\n\n")
+    pkg_str: str | None
+    dep_str: str | None
+    info_str: str
+    if len(parts) == 3:  # noqa: PLR2004
+        pkg_str, dep_str, info_str = parts
+    elif len(parts) == 1:
         [info_str] = parts
+        pkg_str = dep_str = None
+    elif "Package" in parts[0]:
+        pkg_str, info_str = parts
+        dep_str = None
+    elif "Dependency" in parts[0]:
+        dep_str, info_str = parts
+        pkg_str = None
+    else:
+        pytest.fail("Unexpected output")
+
+    for name, s, name2dists, expected in [
+        ("Package", pkg_str, pkg2dists, pkgs_expected),
+        ("Dependency", dep_str, dep2dists, deps_expected),
+    ]:
+        if s is None:
+            continue
+        header, sep, *rows = s.splitlines()
+        if name2dists:
+            [[pkg_name]] = name2dists.values()
+            n_extra = len(pkg_name) - len(name)
+        else:
+            n_extra = 0
+        assert header == f"| {name}{' ' * n_extra} | Version |"
+        assert sep == f"| {'-' * len(name)}{'-' * n_extra} | ------- |"
+        assert rows == expected
 
     info_header, info_sep, *info_rows = info_str.splitlines()
     info_extra = max(len(r.split("|")[2].strip()) for r in info_rows) - len("Info")
