@@ -1,15 +1,15 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Pytest",
-      "purpose": ["debug-test"],
-      "type": "python",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": false,
-      "presentation": { "hidden": true },
-    },
-  ],
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Pytest",
+			"purpose": ["debug-test"],
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${file}",
+			"console": "internalConsole",
+			"justMyCode": false,
+			"presentation": { "hidden": true },
+		},
+	],
 }
