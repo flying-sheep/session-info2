@@ -18,6 +18,7 @@ repos:
   rev: v0.4.0
   hooks:
   - id: biome-format
+    additional_dependencies: ["@biomejs/biome@1.8.3"]
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.10.1
   hooks:
