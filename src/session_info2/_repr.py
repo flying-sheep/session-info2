@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 if TYPE_CHECKING:
     from collections.abc import Callable, Container, Iterable, Mapping
 
-    from . import SessionInfo
+    from . import SessionInfo, _TableHeader
 
     MimeWidget = Literal["application/vnd.jupyter.widget-view+json"]
 
@@ -34,7 +34,7 @@ def repr_markdown(si: SessionInfo) -> str:
     )
 
 
-def _fmt_markdown(header: tuple[str, str], rows: Iterable[tuple[str, str]]) -> str:
+def _fmt_markdown(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
     rows = list(rows)
     if not rows:
         return ""
@@ -72,8 +72,11 @@ def repr_html(si: SessionInfo, *, add_details: bool = True) -> str:
     ).strip()
 
 
-def _fmt_html(header: tuple[str, str], rows: Iterable[tuple[str, str]]) -> str:
-    trs = "\n".join(f"<tr><td>{k}</td><td>{v}</td></tr>" for k, v in rows)
+def _fmt_html(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
+    def strengthen(k: str) -> str:
+        return f"<strong>{k}</strong>" if header[0] == "Package" else k
+
+    trs = "\n".join(f"<tr><td>{strengthen(k)}</td><td>{v}</td></tr>" for k, v in rows)
     if not trs:
         return ""
     th = f"<tr><th>{header[0]}</th><th>{header[1]}</th></tr>"
