@@ -47,29 +47,48 @@ def _fmt_markdown(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
 
 def repr_html(si: SessionInfo, *, add_details: bool = True) -> str:
     """Generate static HTML representation."""
-    parts = "\n".join(
-        part
+    parts = {
+        header: part
         for header, rows in si._table_parts().items()  # noqa: SLF001
         if (part := _fmt_html(header, rows))
-    )
-    table = dedent(
-        f"""
-        <div style="max-height: min(500px, 80vh); overflow-y: auto;">
-            <table class=table>
-            {indent(parts, " " * 8)}
-            </table>
-        </div>
-        """,
-    ).strip()
+    }
+    shown_parts = [part for header, part in parts.items() if header[0] != "Dependency"]
+    if deps := parts.get(("Dependency", "Version"), ""):
+        deps = dedent(
+            f"""
+            <details>
+                <summary>Dependencies</summary>
+                {indent(_scrollable_table(deps), " " * 8)}
+            </details>
+            """
+        ).strip()
+    content = f"""
+        <table class=table>
+        {indent("\n".join(shown_parts), " " * 4)}
+        </table>
+        {deps}
+        """
     if not add_details:
-        return table
+        return content
     return dedent(
         f"""
-        {table}
+        {content}
         <details>
             <summary>Copyable Markdown</summary>
             <pre>{repr_markdown(si)}</pre>
         </details>
+        """,
+    ).strip()
+
+
+def _scrollable_table(inner: str) -> str:
+    return dedent(
+        f"""
+        <div style="max-height: min(500px, 80vh); overflow-y: auto;">
+            <table class=table>
+            {indent(inner, " " * 8)}
+            </table>
+        </div>
         """,
     ).strip()
 
