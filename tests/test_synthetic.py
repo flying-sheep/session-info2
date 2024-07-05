@@ -10,7 +10,9 @@ import pytest
 from session_info2 import SessionInfo, _repr
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+
+    from session_info2 import _TableHeader
 
 
 @pytest.mark.parametrize(
@@ -106,24 +108,35 @@ def test_markdown(
     else:
         pytest.fail("Unexpected output")
 
-    for name, s, name2dists, expected in [
-        ("Package", pkg_str, pkg2dists, pkgs_expected),
-        ("Dependency", dep_str, dep2dists, deps_expected),
-    ]:
-        if s is None:
-            continue
-        header, sep, *rows = s.splitlines()
-        if name2dists:
-            [[pkg_name]] = name2dists.values()
-            n_extra = len(pkg_name) - len(name)
-        else:
-            n_extra = 0
-        assert header == f"| {name}{' ' * n_extra} | Version |"
-        assert sep == f"| {'-' * len(name)}{'-' * n_extra} | ------- |"
-        assert rows == expected
+    x: list[
+        tuple[_TableHeader, str | None, Mapping[str, Iterable[str]], Sequence[str]]
+    ] = [
+        (("Package", "Version"), pkg_str, pkg2dists, pkgs_expected),
+        (("Dependency", "Version"), dep_str, dep2dists, deps_expected),
+    ]
+    for cols, content, name2dists, expected in x:
+        if content is not None:
+            assert_markdown_segment(cols, content, name2dists, expected)
 
     info_header, info_sep, *info_rows = info_str.splitlines()
     info_extra = max(len(r.split("|")[2].strip()) for r in info_rows) - len("Info")
     assert info_header == f"| Component | Info{' ' * info_extra} |"
     assert info_sep == f"| --------- | ----{'-' * info_extra} |"
     # info_rows content is already tested for plain text, no need to test it again
+
+
+def assert_markdown_segment(
+    cols: _TableHeader,
+    content: str,
+    name2dists: Mapping[str, Iterable[str]],
+    expected: Sequence[str],
+) -> None:
+    header, sep, *rows = content.splitlines()
+    if name2dists:
+        [[pkg_name]] = name2dists.values()
+        n_extra = len(pkg_name) - len(cols[0])
+    else:
+        n_extra = 0
+    assert header == f"| {cols[0]}{' ' * n_extra} | Version |"
+    assert sep == f"| {'-' * len(cols[0])}{'-' * n_extra} | ------- |"
+    assert rows == expected
