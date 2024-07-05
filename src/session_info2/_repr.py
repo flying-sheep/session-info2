@@ -45,40 +45,46 @@ def _fmt_markdown(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
     return f"{row_template.format(*header)}\n{sep}\n{rows_fmt}"
 
 
-def repr_html(si: SessionInfo, *, add_details: bool = True) -> str:
+def repr_html(si: SessionInfo) -> str:
     """Generate static HTML representation."""
-    parts = {
-        header: part
-        for header, rows in si._table_parts().items()  # noqa: SLF001
-        if (part := _fmt_html(header, rows))
-    }
-    shown_parts = [part for header, part in parts.items() if header[0] != "Dependency"]
-    if deps := parts.get(("Dependency", "Version"), ""):
+    content, deps = repr_html_parts(si)
+    if deps:
         deps = dedent(
             f"""
             <details>
                 <summary>Dependencies</summary>
-                {indent(_scrollable_table(deps), " " * 8)}
+                {indent(deps, " " * 8)}
             </details>
             """
         ).strip()
-    content = f"""
-        <table class=table>
-        {indent("\n".join(shown_parts), " " * 4)}
-        </table>
-        {deps}
-        """
-    if not add_details:
-        return content
     return dedent(
         f"""
         {content}
+        {deps if deps else ""}
         <details>
             <summary>Copyable Markdown</summary>
             <pre>{repr_markdown(si)}</pre>
         </details>
         """,
     ).strip()
+
+
+def repr_html_parts(si: SessionInfo) -> tuple[str, str | None]:
+    """Generate parts for HTML representation."""
+    parts = {
+        header: part
+        for header, rows in si._table_parts().items()  # noqa: SLF001
+        if (part := _fmt_html(header, rows))
+    }
+    shown_parts = [part for header, part in parts.items() if header[0] != "Dependency"]
+    content = f"""
+        <table class=table>
+        {indent("\n".join(shown_parts), " " * 4)}
+        </table>
+        """
+    if deps := parts.get(("Dependency", "Version")):
+        deps = _scrollable_table(deps)
+    return content, deps
 
 
 def _scrollable_table(inner: str) -> str:
