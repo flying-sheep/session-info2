@@ -47,16 +47,18 @@ def _fmt_markdown(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
 
 def repr_html(si: SessionInfo, *, add_details: bool = True) -> str:
     """Generate static HTML representation."""
-    rows = "\n".join(
+    parts = "\n".join(
         part
         for header, rows in si._table_parts().items()  # noqa: SLF001
         if (part := _fmt_html(header, rows))
     )
     table = dedent(
         f"""
-        <table class=table>
-            {indent(rows, "    ")}
-        </table>
+        <div style="max-height: min(500px, 80vh); overflow-y: auto;">
+            <table class=table>
+            {indent(parts, " " * 8)}
+            </table>
+        </div>
         """,
     ).strip()
     if not add_details:
@@ -76,11 +78,15 @@ def _fmt_html(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
     def strengthen(k: str) -> str:
         return f"<strong>{k}</strong>" if header[0] == "Package" else k
 
-    trs = "\n".join(f"<tr><td>{strengthen(k)}</td><td>{v}</td></tr>" for k, v in rows)
+    trs = "\n".join(
+        f"    <tr><td>{strengthen(k)}</td><td>{v}</td></tr>" for k, v in rows
+    )
     if not trs:
         return ""
-    th = f"<tr><th>{header[0]}</th><th>{header[1]}</th></tr>"
-    return f"{th}\n{trs}"
+    th = f"    <tr><th>{header[0]}</th><th>{header[1]}</th></tr>"
+    bg = "var(--jp-layout-color0, var(--vscode-editor-background, white))"
+    style = f' style="position: sticky; top: 0; background-color: {bg};"'
+    return f"<thead{style}>\n{th}\n</thead>\n<tbody>\n{trs}\n</tbody>"
 
 
 def repr_json(si: SessionInfo) -> str:
