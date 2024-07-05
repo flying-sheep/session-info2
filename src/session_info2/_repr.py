@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 if TYPE_CHECKING:
     from collections.abc import Callable, Container, Iterable, Mapping
 
-    from . import SessionInfo
+    from . import SessionInfo, _TableHeader
 
     MimeWidget = Literal["application/vnd.jupyter.widget-view+json"]
 
@@ -34,7 +34,7 @@ def repr_markdown(si: SessionInfo) -> str:
     )
 
 
-def _fmt_markdown(header: tuple[str, str], rows: Iterable[tuple[str, str]]) -> str:
+def _fmt_markdown(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
     rows = list(rows)
     if not rows:
         return ""
@@ -72,8 +72,11 @@ def repr_html(si: SessionInfo, *, add_details: bool = True) -> str:
     ).strip()
 
 
-def _fmt_html(header: tuple[str, str], rows: Iterable[tuple[str, str]]) -> str:
-    trs = "\n".join(f"<tr><td>{k}</td><td>{v}</td></tr>" for k, v in rows)
+def _fmt_html(header: _TableHeader, rows: Iterable[tuple[str, str]]) -> str:
+    def strengthen(k: str) -> str:
+        return f"<strong>{k}</strong>" if header[0] == "Package" else k
+
+    trs = "\n".join(f"<tr><td>{strengthen(k)}</td><td>{v}</td></tr>" for k, v in rows)
     if not trs:
         return ""
     th = f"<tr><th>{header[0]}</th><th>{header[1]}</th></tr>"
@@ -84,12 +87,19 @@ def repr_json(si: SessionInfo) -> str:
     parts = si._table_parts()  # noqa: SLF001
     return json.dumps(
         dict(
-            packages=[
-                dict(package=k, version=v) for k, v in parts["Package", "Version"]
-            ],
+            packages=_repr_json_part(parts["Package", "Version"]),
+            **(
+                dict(dependencies=_repr_json_part(parts["Dependency", "Version"]))
+                if ("Dependency", "Version") in parts
+                else {}
+            ),
             info=dict(parts["Component", "Info"]),
         ),
     )
+
+
+def _repr_json_part(rows: Iterable[tuple[str, str]]) -> list[dict[str, str]]:
+    return [dict(package=k, version=v) for k, v in rows]
 
 
 def repr_widget(si: SessionInfo) -> dict[str, str]:

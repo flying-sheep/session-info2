@@ -65,9 +65,6 @@ mypy_path = ["$MYPY_CONFIG_FILE_DIR/stubs", "$MYPY_CONFIG_FILE_DIR/src"]
 stubPath = "./stubs"
 reportPrivateUsage = false
 
-[[tool.hatch.envs.all.matrix]]
-python = ["3.10", "3.11", "3.12"]
-
 [tool.ruff.lint]
 select = ['ALL']
 ignore = [
@@ -100,6 +97,9 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["session_info2"]
 required-imports = ["from __future__ import annotations"]
+[tool.ruff.lint.pylint]
+max-args = 7
+max-positional-args = 3
 
 [tool.coverage.run]
 source_pkgs = ["session_info2", "tests"]
