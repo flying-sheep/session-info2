@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from ._repr import MIME_REPRS, repr_html
+from ._repr import MIME_REPRS, repr_html, repr_html_parts
 
 if TYPE_CHECKING:
     from ipywidgets import Widget
@@ -34,8 +34,12 @@ def widget(si: SessionInfo) -> Widget:
 
     button.on_click(on_click)
 
-    table = widgets.HTML(value=repr_html(si, add_details=False))
-    return widgets.VBox((button, output, table))
+    content, deps = repr_html_parts(si)
+    w = widgets.VBox((button, output, widgets.HTML(value=content)))
+    if not deps:
+        return w
+    # Maybe: widgets.Accordion(children=[widgets.HTML(deps)], titles=["Dependencies"]),
+    return widgets.HBox((w, widgets.HTML(deps)))
 
 
 def _clipboard_js(

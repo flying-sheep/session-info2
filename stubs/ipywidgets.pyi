@@ -139,6 +139,12 @@ class HBox(Box): ...
 class VBox(Box): ...
 
 @dataclass
+class Accordion(Box):
+    children: Sequence[Widget]
+    _ = KW_ONLY
+    titles: Sequence[str] = ()
+
+@dataclass
 class Button(Widget):
     _ = KW_ONLY
     description: str
