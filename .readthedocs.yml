@@ -12,5 +12,4 @@ python:
       path: .
       extra_requirements:
         - docs
-    - method: pip
-      requirements: docs/requirements-sbc.txt
+    - requirements: docs/requirements-sbc.txt
