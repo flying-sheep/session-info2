@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from importlib.metadata import metadata
 
 _info = metadata("session_info2")
@@ -12,16 +13,21 @@ project = _info.get("Name")
 
 # theme settings
 html_theme = "furo"
-html_theme_options = dict(
-    source_repository="https://github.com/flying-sheep/session-info2/",
-    source_branch="main",
-    source_directory="docs/",
-)
-html_context = dict(
-    github_user="flying-sheep",
-    github_repo="session-info2",
-    github_version="main",
-)
+if clone_url := os.environ.get("READTHEDOCS_GIT_CLONE_URL"):
+    _github_user, _github_repo = clone_url.removesuffix(".git").split("/")[-2:]
+    _github_version = os.environ["READTHEDOCS_GIT_IDENTIFIER"]
+    html_context = dict(
+        READTHEDOCS=True,
+        display_github=True,
+        github_user=_github_user,
+        github_repo=_github_repo,
+        github_version=_github_version,
+    )
+    html_theme_options = dict(
+        source_repository=f"https://github.com/{_github_user}/{_github_repo}/",
+        source_branch=_github_version,
+        source_directory="docs/",
+    )
 
 # basic build settings
 html_theme = "furo"
