@@ -24,7 +24,7 @@ jobs:
     - uses: hynek/setup-cached-uv@v2
       with:
         cache-dependency-path: pyproject.toml
-    - run: sudo uv pip install --system -e .[test,jupyter]
+    - run: uv pip install --system -e .[test,jupyter]
     - uses: pavelzw/pytest-action@v2
       with:
         custom-arguments: --color=yes
