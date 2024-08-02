@@ -77,9 +77,10 @@ def repr_html_parts(si: SessionInfo) -> tuple[str, str | None]:
         if (part := _fmt_html(header, rows))
     }
     shown_parts = [part for header, part in parts.items() if header[0] != "Dependency"]
+    nl = "\n"  # Python 3.10 can’t do backslashes in f-strings
     content = f"""
         <table class=table>
-        {indent("\n".join(shown_parts), " " * 4)}
+        {indent(nl.join(shown_parts), " " * 4)}
         </table>
         """
     if deps := parts.get(("Dependency", "Version")):
