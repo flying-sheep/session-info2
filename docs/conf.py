@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
-import os
 from importlib.metadata import metadata
+
+try:
+    import sphinx_build_compatibility as sbc  # type: ignore[import-not-found]
+except ImportError:
+    sbc = None
 
 _info = metadata("session_info2")
 
@@ -11,36 +15,9 @@ _info = metadata("session_info2")
 master_doc = "index"
 project = _info.get("Name")
 
-# theme settings
-html_theme = "furo"
-if clone_url := os.environ.get("READTHEDOCS_GIT_CLONE_URL"):
-    html_css_files = [
-        "https://assets.readthedocs.org/static/css/readthedocs-doc-embed.css",
-        "https://assets.readthedocs.org/static/css/badge_only.css",
-    ]
-    html_js_files = [
-        "readthedocs-dummy.js",
-        "https://assets.readthedocs.org/static/javascript/readthedocs-doc-embed.js",
-    ]
-    _github_user, _github_repo = clone_url.removesuffix(".git").split("/")[-2:]
-    _github_version = os.environ["READTHEDOCS_GIT_IDENTIFIER"]
-    html_context = dict(
-        READTHEDOCS=True,
-        current_version=os.environ["READTHEDOCS_VERSION"],
-        display_github=True,
-        github_user=_github_user,
-        github_repo=_github_repo,
-        github_version=_github_version,
-    )
-    html_theme_options = dict(
-        source_repository=f"https://github.com/{_github_user}/{_github_repo}/",
-        source_branch=_github_version,
-        source_directory="docs/",
-    )
-
 # basic build settings
 html_theme = "furo"
-extensions = ["myst_nb"]
+extensions = ["myst_nb", *(["sphinx_build_compatibility.extension"] if sbc else [])]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
 suppress_warnings = ["mystnb.unknown_mime_type"]

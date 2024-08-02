@@ -12,3 +12,5 @@ python:
       path: .
       extra_requirements:
         - docs
+      requirements:
+      - git+https://github.com/readthedocs/sphinx-build-compatibility.git
