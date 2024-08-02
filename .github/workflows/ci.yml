@@ -12,6 +12,9 @@ env:
 jobs:
   linux:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -19,9 +22,11 @@ jobs:
         filter: blob:none
     - uses: actions/setup-python@v4
       with:
-        python-version: "3.12"
-        cache: pip
-    - run: pip install -e .[test,jupyter]
+        python-version: ${{ matrix.python-version }}
+    - uses: hynek/setup-cached-uv@v2
+      with:
+        cache-dependency-path: pyproject.toml
+    - run: uv pip install --system -e .[test,jupyter]
     - uses: pavelzw/pytest-action@v2
       with:
         custom-arguments: --color=yes

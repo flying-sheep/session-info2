@@ -44,6 +44,7 @@ source = "vcs"
 [tool.hatch.envs.hatch-test]
 default-args = [  ]
 features = [ "test", "jupyter" ]
+extra-dependencies = [ "pyinstrument" ]
 
 [tool.ruff]
 lint.select = [ "ALL" ]
@@ -69,6 +70,7 @@ lint.per-file-ignores."tests/*" = [
   "RUF018", # assert with := is fine
   "S101",   # Use of assert
 ]
+lint.allowed-confusables = [ "×", "’" ]
 lint.isort.known-first-party = [ "session_info2" ]
 lint.isort.required-imports = [ "from __future__ import annotations" ]
 lint.pylint.max-args = 7
