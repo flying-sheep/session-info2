@@ -3,6 +3,13 @@
 from __future__ import annotations
 
 from importlib.metadata import metadata
+from importlib.util import find_spec
+
+_sbc = (
+    ["sphinx_build_compatibility.extension"]
+    if find_spec("sphinx_build_compatibility")
+    else []
+)
 
 _info = metadata("session_info2")
 
@@ -10,17 +17,9 @@ _info = metadata("session_info2")
 master_doc = "index"
 project = _info.get("Name")
 
-# theme settings
-html_theme = "furo"
-html_theme_options = {
-    "source_repository": "https://github.com/flying-sheep/session-info2/",
-    "source_branch": "main",
-    "source_directory": "docs/",
-}
-
 # basic build settings
 html_theme = "furo"
-extensions = ["myst_nb"]
+extensions = ["myst_nb", *_sbc]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
 suppress_warnings = ["mystnb.unknown_mime_type"]

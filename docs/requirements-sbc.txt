@@ -1,0 +1,1 @@
+sphinx-build-compatibility @ git+https://github.com/readthedocs/sphinx-build-compatibility.git
