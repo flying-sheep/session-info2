@@ -14,10 +14,19 @@ project = _info.get("Name")
 # theme settings
 html_theme = "furo"
 if clone_url := os.environ.get("READTHEDOCS_GIT_CLONE_URL"):
+    html_css_files = [
+        "https://assets.readthedocs.org/static/css/readthedocs-doc-embed.css",
+        "https://assets.readthedocs.org/static/css/badge_only.css",
+    ]
+    html_js_files = [
+        "readthedocs-dummy.js",
+        "https://assets.readthedocs.org/static/javascript/readthedocs-doc-embed.js",
+    ]
     _github_user, _github_repo = clone_url.removesuffix(".git").split("/")[-2:]
     _github_version = os.environ["READTHEDOCS_GIT_IDENTIFIER"]
     html_context = dict(
         READTHEDOCS=True,
+        current_version=os.environ["READTHEDOCS_VERSION"],
         display_github=True,
         github_user=_github_user,
         github_repo=_github_repo,
