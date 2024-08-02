@@ -12,11 +12,16 @@ project = _info.get("Name")
 
 # theme settings
 html_theme = "furo"
-html_theme_options = {
-    "source_repository": "https://github.com/flying-sheep/session-info2/",
-    "source_branch": "main",
-    "source_directory": "docs/",
-}
+html_theme_options = dict(
+    source_repository="https://github.com/flying-sheep/session-info2/",
+    source_branch="main",
+    source_directory="docs/",
+)
+html_context = dict(
+    github_user="flying-sheep",
+    github_repo="session-info2",
+    github_version="main",
+)
 
 # basic build settings
 html_theme = "furo"
