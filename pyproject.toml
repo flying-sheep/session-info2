@@ -22,6 +22,13 @@ classifiers = [
 ]
 dynamic = [ "description", "version" ]
 dependencies = [  ]
+optional-dependencies.docs = [
+  "ipywidgets",
+  "myst-nb",
+  "scanpy",
+  "session-info",
+  "sphinx",
+]
 optional-dependencies.jupyter = [ "ipywidgets" ]
 optional-dependencies.test = [
   "coverage[toml]>=6.5",
@@ -46,6 +53,10 @@ default-args = [  ]
 features = [ "test", "jupyter" ]
 extra-dependencies = [ "pyinstrument" ]
 
+[tool.hatch.envs.docs]
+features = [ "docs" ]
+scripts.build = "sphinx-build -W --keep-going -b html docs docs/_build/html {args}"
+
 [tool.ruff]
 lint.select = [ "ALL" ]
 lint.ignore = [
@@ -58,6 +69,9 @@ lint.ignore = [
   "FIX002", # TODOs are fine
   "ISC001", # Incompatible with formatter
   "TD002",  # No need to assign TODOs to some person
+]
+lint.per-file-ignores."docs/conf.py" = [
+  "INP001", # __init__.py
 ]
 lint.per-file-ignores."src/session_info2/__main__.py" = [
   "T201", # print is fine
