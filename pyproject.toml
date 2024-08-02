@@ -24,12 +24,14 @@ dynamic = [ "description", "version" ]
 dependencies = [  ]
 optional-dependencies.docs = [
   "furo",
-  "ipywidgets",
   "myst-nb",
-  "numpy",
   "session-info",
+  "session-info2[docs-env]",
   "sphinx",
 ]
+# Dependencies needed to run the notebook
+# TODO: actually run notebook with that env
+optional-dependencies.docs-env = [ "ipywidgets", "numpy" ]
 optional-dependencies.jupyter = [ "ipywidgets" ]
 optional-dependencies.test = [
   "coverage[toml]>=6.5",
@@ -53,6 +55,11 @@ source = "vcs"
 default-args = [  ]
 features = [ "test", "jupyter" ]
 extra-dependencies = [ "pyinstrument" ]
+
+[tool.hatch.envs.docs-env]
+installer = "uv"
+features = [ "docs-env" ]
+extra-dependencies = [ "ipykernel" ]
 
 [tool.hatch.envs.docs]
 installer = "uv"

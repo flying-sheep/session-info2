@@ -91,6 +91,16 @@ class SessionInfo:
                 imported[dist_name] = None
         return imported.keys()
 
+    @cached_property
+    def deps_dists(self) -> AbstractSet[str]:
+        """Get ordered set of loaded distributions that aren’t imported."""
+        return {
+            dist
+            for dist, pkgs in self.dist2pkgs.items()
+            if pkgs & sys.modules.keys()
+            if dist not in self.imported_dists
+        }
+
     def __hash__(self) -> int:
         """Generate hash value."""
         pkg2dists = tuple((pkg, *ds) for pkg, ds in self.pkg2dists.items())
@@ -118,11 +128,13 @@ class SessionInfo:
         self, *, deps_default: bool = True
     ) -> dict[_TableHeader, Iterable[tuple[str, str]]]:
         deps: dict[_TableHeader, Iterable[tuple[str, str]]] = {}
-        if (self.dependencies or (self.dependencies is None and deps_default)) and (
-            deps_dists := self.dist2pkgs.keys() - self.imported_dists
-        ):
+        if (
+            self.dependencies or (self.dependencies is None and deps_default)
+        ) and self.deps_dists:
             deps = {
-                ("Dependency", "Version"): ((d, self._version(d)) for d in deps_dists)
+                ("Dependency", "Version"): (
+                    (d, self._version(d)) for d in self.deps_dists
+                )
             }
         return {
             ("Package", "Version"): (
