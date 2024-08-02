@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 # TODO: make this configurable
 # https://github.com/flying-sheep/session-info2/issues/6
-IGNORED = frozenset({"ipython"})
+IGNORED = frozenset({"ipython", "session-info2"})
 
 
 @dataclass
