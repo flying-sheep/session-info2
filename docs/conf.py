@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+from importlib.metadata import metadata
+
+_info = metadata("session_info2")
+
 # specify project details
 master_doc = "index"
-project = "MyST-NB Quickstart"
+project = _info.get("Name")
 
 # basic build settings
+html_theme = "furo"
 extensions = ["myst_nb"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True

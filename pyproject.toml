@@ -23,6 +23,7 @@ classifiers = [
 dynamic = [ "description", "version" ]
 dependencies = [  ]
 optional-dependencies.docs = [
+  "furo",
   "ipywidgets",
   "myst-nb",
   "scanpy",
