@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from importlib.metadata import metadata
+from importlib.util import find_spec
 
-try:
-    import sphinx_build_compatibility as sbc  # type: ignore[import-not-found]
-except ImportError:
-    sbc = None
+_sbc = (
+    ["sphinx_build_compatibility.extension"]
+    if find_spec("sphinx_build_compatibility")
+    else []
+)
 
 _info = metadata("session_info2")
 
@@ -17,7 +19,7 @@ project = _info.get("Name")
 
 # basic build settings
 html_theme = "furo"
-extensions = ["myst_nb", *(["sphinx_build_compatibility.extension"] if sbc else [])]
+extensions = ["myst_nb", *_sbc]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
 suppress_warnings = ["mystnb.unknown_mime_type"]
