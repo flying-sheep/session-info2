@@ -1,18 +1,18 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs", "hatch-docstring-description"]
 build-backend = "hatchling.build"
+requires = [ "hatch-docstring-description", "hatch-vcs", "hatchling" ]
 
 [project]
 name = "session-info2"
-dynamic = ["version", "description"]
 readme = "README.md"
-requires-python = ">=3.10"
+keywords = [ "jupyter", "session-info" ]
 license = "GPL-3.0-or-later"
-keywords = ["jupyter", "session-info"]
-authors = [{ name = "Philipp A.", email = "flying-sheep@web.de" }]
+authors = [ { name = "Philipp A.", email = "flying-sheep@web.de" } ]
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -20,35 +20,62 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
   "Typing :: Typed",
 ]
-dependencies = []
-[project.optional-dependencies]
-test = [
+dynamic = [ "description", "version" ]
+dependencies = [  ]
+optional-dependencies.jupyter = [ "ipywidgets" ]
+optional-dependencies.test = [
   "coverage[toml]>=6.5",
+  "ipykernel",
+  "jupyter-client",
   "pytest",
   "pytest-asyncio",
-  "jupyter-client",
-  "ipykernel",
   # For GitHub report
   "pytest-md",
   # Example package as “test data”
-  "testing.common.database",
+  "testing-common-database",
 ]
-jupyter = ["ipywidgets"]
-
-[project.urls]
-Documentation = "https://github.com/flying-sheep/session-info2#readme"
-Issues = "https://github.com/flying-sheep/session-info2/issues"
-Source = "https://github.com/flying-sheep/session-info2"
+urls.Documentation = "https://github.com/flying-sheep/session-info2#readme"
+urls.Issues = "https://github.com/flying-sheep/session-info2/issues"
+urls.Source = "https://github.com/flying-sheep/session-info2"
 
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.envs.hatch-test]
-default-args = []
-features = ["test", "jupyter"]
+default-args = [  ]
+features = [ "test", "jupyter" ]
+
+[tool.ruff]
+lint.select = [ "ALL" ]
+lint.ignore = [
+  "ANN101", # Missing type annotation for self in method
+  "B019",   # functools.cache is fine to use
+  "C408",   # dict(...) calls are good
+  "COM812", # Incompatible with formatter
+  "D203",   # 0 instead of 1 blank lines before class docstring
+  "D213",   # Multi-line docstring summary should start at the first instead of second line
+  "FIX002", # TODOs are fine
+  "ISC001", # Incompatible with formatter
+  "TD002",  # No need to assign TODOs to some person
+]
+lint.per-file-ignores."src/session_info2/__main__.py" = [
+  "T201", # print is fine
+]
+lint.per-file-ignores."tests/*" = [
+  "D102",   # Missing docstring in public method
+  "D103",   # Missing docstring in public function
+  "D105",   # Missing docstring in magic method
+  "INP001", # __init__.py
+  "RUF018", # assert with := is fine
+  "S101",   # Use of assert
+]
+lint.isort.known-first-party = [ "session_info2" ]
+lint.isort.required-imports = [ "from __future__ import annotations" ]
+lint.pylint.max-args = 7
+lint.pylint.max-positional-args = 3
 
 [tool.pytest.ini_options]
-addopts = ["--import-mode=importlib", "--strict-markers"]
+addopts = [ "--import-mode=importlib", "--strict-markers" ]
 asyncio_mode = "auto"
 filterwarnings = [
   "error",
@@ -56,63 +83,24 @@ filterwarnings = [
   "ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:dateutil",
 ]
 
+[tool.coverage.run]
+source_pkgs = [ "session_info2", "tests" ]
+branch = true
+parallel = true
+omit = [  ]
+
+[tool.coverage.paths]
+session_info2 = [ "src/session_info2", "*/session-info2/src/session_info2" ]
+tests = [ "tests", "*/session-info2/tests" ]
+
+[tool.coverage.report]
+exclude_lines = [ "no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:" ]
+
 [tool.mypy]
 strict = true
 explicit_package_bases = true
-mypy_path = ["$MYPY_CONFIG_FILE_DIR/stubs", "$MYPY_CONFIG_FILE_DIR/src"]
+mypy_path = [ "$MYPY_CONFIG_FILE_DIR/stubs", "$MYPY_CONFIG_FILE_DIR/src" ]
 
 [tool.pyright]
 stubPath = "./stubs"
 reportPrivateUsage = false
-
-[tool.ruff.lint]
-select = ['ALL']
-ignore = [
-  # Missing type annotation for self in method
-  "ANN101",
-  # functools.cache is fine to use
-  "B019",
-  # dict(...) calls are good
-  "C408",
-  # 0 instead of 1 blank lines before class docstring
-  "D203",
-  # Multi-line docstring summary should start at the first instead of second line
-  "D213",
-  # TODOs are fine, no need to assign to some person
-  "TD002",
-  "FIX002",
-  # Incompatible with formatter
-  "COM812",
-  "ISC001",
-]
-[tool.ruff.lint.per-file-ignores]
-"src/session_info2/__main__.py" = [
-  "T201", # print is fine
-]
-"tests/*" = [
-  "D102",   # Missing docstring in public method
-  "D103",   # Missing docstring in public function
-  "D105",   # Missing docstring in magic method
-  "S101",   # Use of assert
-  "INP001", # __init__.py
-  "RUF018", # assert with := is fine
-]
-[tool.ruff.lint.isort]
-known-first-party = ["session_info2"]
-required-imports = ["from __future__ import annotations"]
-[tool.ruff.lint.pylint]
-max-args = 7
-max-positional-args = 3
-
-[tool.coverage.run]
-source_pkgs = ["session_info2", "tests"]
-branch = true
-parallel = true
-omit = []
-
-[tool.coverage.paths]
-session_info2 = ["src/session_info2", "*/session-info2/src/session_info2"]
-tests = ["tests", "*/session-info2/tests"]
-
-[tool.coverage.report]
-exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
