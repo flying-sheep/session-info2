@@ -14,6 +14,7 @@ from types import MappingProxyType, ModuleType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from ._repr import repr_mimebundle as _repr_mimebundle
+from ._ttl_cache import ttl_cache
 from ._widget import widget as _widget
 
 if TYPE_CHECKING:
@@ -95,6 +96,7 @@ class SessionInfo:
         pkg2dists = tuple((pkg, *ds) for pkg, ds in self.pkg2dists.items())
         return hash((pkg2dists, tuple(self.imported_dists), self.dependencies))
 
+    @ttl_cache()
     def _version(self, dist: str) -> str:
         """Get version(s) of imported distribution."""
         v_meta = version(dist)

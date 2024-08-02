@@ -12,43 +12,68 @@ from jupyter_client.manager import start_new_async_kernel
 from session_info2._repr import MIME_WIDGET
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
+    from collections.abc import AsyncGenerator, Awaitable, Callable
     from pathlib import Path
 
     from jupyter_client.asynchronous.client import AsyncKernelClient
 
+    Execute = Callable[[str], Awaitable[list[dict[str, str]]]]
 
-@pytest.fixture()
-async def kernel_client(libdir_test: Path) -> AsyncGenerator[AsyncKernelClient, None]:
+
+@pytest.fixture(scope="session")
+async def kernel_client() -> AsyncGenerator[AsyncKernelClient, None]:
     km, kc = await start_new_async_kernel(kernel_name="python3")
-    await execute(
-        kc,
-        f"""
-        import sys
-        sys.path.insert(0, {json.dumps(str(libdir_test))})
-        del sys
-        """,
-    )
     yield kc
     kc.stop_channels()
     await km.shutdown_kernel()  # pyright: ignore[reportUnknownMemberType]
 
 
-async def execute(kc: AsyncKernelClient, code: str) -> list[dict[str, str]]:
-    await kc.wait_for_ready()
-    msgs: list[dict[str, Any]] = []
-    reply = await kc.execute_interactive(  # pyright: ignore[reportUnknownMemberType]
-        code,
-        allow_stdin=False,
-        output_hook=msgs.append,
-        # If it hangs, enable this: timeout=5.0,
+@pytest.fixture()
+async def execute(
+    kernel_client: AsyncKernelClient, libdir_test: Path
+) -> AsyncGenerator[Execute, None]:
+    async def execute(code: str) -> list[dict[str, str]]:
+        await kernel_client.wait_for_ready()
+        msgs: list[dict[str, Any]] = []
+        reply = await kernel_client.execute_interactive(  # pyright: ignore[reportUnknownMemberType]
+            code,
+            allow_stdin=False,
+            output_hook=msgs.append,
+            # If it hangs, enable this: timeout=5.0,
+        )
+        if reply["content"]["status"] == "error":
+            content = reply["content"]
+            content["traceback"] = "\n".join(content["traceback"])
+            pytest.fail("{ename}: {evalue}\n{traceback}".format_map(content))
+        elif reply["content"]["status"] != "ok":
+            pytest.fail(f"Unexpected reply status: {reply['content']['status']}")
+        return [
+            msg["content"]["data"]
+            for msg in msgs
+            if msg["header"]["msg_type"] == "execute_result"
+        ]
+
+    await execute(
+        f"""
+        #from pyinstrument import Profiler as _Profiler
+        #_profiler = _Profiler()
+        #_profiler.start()
+        import sys
+        sys.path.insert(0, {json.dumps(str(libdir_test))})
+        del sys
+        """
     )
-    assert reply["content"]["status"] == "ok", reply["content"]["evalue"]
-    return [
-        msg["content"]["data"]
-        for msg in msgs
-        if msg["header"]["msg_type"] == "execute_result"
-    ]
+    yield execute
+    await execute(
+        """
+        #_profiler.stop()
+        #_profiler.open_in_browser()
+        import site
+        from importlib import reload
+        reload(site)
+        %reset
+        """
+    )
 
 
 RUN = """\
@@ -72,13 +97,9 @@ session_info()
         ),
     ],
 )
-async def test_run(
-    kernel_client: AsyncKernelClient,
-    code: str,
-    expected: str,
-) -> None:
-    await execute(kernel_client, code)
-    [mimebundle] = await execute(kernel_client, RUN)
+async def test_run(execute: Execute, code: str, expected: str) -> None:
+    await execute(code)
+    [mimebundle] = await execute(RUN)
     assert mimebundle.keys() == {
         "text/plain",
         "text/markdown",
