@@ -10,6 +10,14 @@ _info = metadata("session_info2")
 master_doc = "index"
 project = _info.get("Name")
 
+# theme settings
+html_theme = "furo"
+html_theme_options = {
+    "source_repository": "https://github.com/flying-sheep/session-info2/",
+    "source_branch": "main",
+    "source_directory": "docs/",
+}
+
 # basic build settings
 html_theme = "furo"
 extensions = ["myst_nb"]
