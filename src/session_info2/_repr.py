@@ -20,6 +20,8 @@ if TYPE_CHECKING:
         "application/json",
         MimeWidget,
     ]
+    _ReprCB = Callable[[SessionInfo], str | dict[str, Any]]
+
 
 MIME_WIDGET: MimeWidget = "application/vnd.jupyter.widget-view+json"
 
@@ -139,7 +141,7 @@ def repr_widget(si: SessionInfo) -> dict[str, str]:
     return widget_bundle[MIME_WIDGET]  # type: ignore[no-any-return]
 
 
-MIME_REPRS: Mapping[SupportedMime, Callable[[SessionInfo], Any]] = MappingProxyType(
+MIME_REPRS: Mapping[SupportedMime, _ReprCB] = MappingProxyType(
     {
         "text/plain": repr,
         "text/markdown": repr_markdown,
