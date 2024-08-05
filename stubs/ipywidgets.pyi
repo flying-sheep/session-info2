@@ -16,7 +16,7 @@ class Widget:
 
 @dataclass
 class Layout(Widget):
-    _ = KW_ONLY
+    _: KW_ONLY
     align_content: (
         Literal[
             "flex-start",
@@ -130,9 +130,16 @@ class Layout(Widget):
     grid_area: str | None = None
 
 @dataclass
-class Box(Widget):
+class DOMWidget(Widget):
+    _: KW_ONLY
+    tabbable: bool | None = None
+    tooltip: str | None = None
+    layout: Layout | dict[str, Any] | None = None
+
+@dataclass
+class Box(DOMWidget):
     children: Sequence[Widget]
-    _ = KW_ONLY
+    _: KW_ONLY
     box_style: Literal["success", "info", "warning", "danger", ""] = ...
 
 class HBox(Box): ...
@@ -141,12 +148,12 @@ class VBox(Box): ...
 @dataclass
 class Accordion(Box):
     children: Sequence[Widget]
-    _ = KW_ONLY
+    _: KW_ONLY
     titles: Sequence[str] = ()
 
 @dataclass
-class Button(Widget):
-    _ = KW_ONLY
+class Button(DOMWidget):
+    _: KW_ONLY
     description: str
     disabled: bool = False
     icon: str = ""
@@ -181,7 +188,7 @@ _StringStyleBound = TypeVar("_StringStyleBound", bound=_StringStyle)
 @dataclass
 class String(Widget, Generic[_StringStyleBound]):
     value: str
-    _ = KW_ONLY
+    _: KW_ONLY
     placeholder: str = ...
     style: _StringStyleBound = ...
 
@@ -189,18 +196,11 @@ class HTML(String[_StringStyle]): ...
 class HTMLMath(String[_StringStyle]): ...
 class Label(String[LabelStyle]): ...
 
-@dataclass
-class DOMWidget(Widget):
-    _ = KW_ONLY
-    tabbable: bool | None = None
-    tooltip: str | None = None
-    layout: Layout | dict[str, Any] | None = None
-
 _F = TypeVar("_F", bound=Callable[..., Any])
 
 @dataclass
 class Output(DOMWidget, AbstractContextManager[None]):
-    _ = KW_ONLY
+    _: KW_ONLY
     msg_id: str = ""
     outputs: tuple[dict[str, Any], ...] = ()
 

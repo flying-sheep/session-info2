@@ -11,5 +11,15 @@
 			"justMyCode": false,
 			"presentation": { "hidden": true },
 		},
+		{
+			"name": "Build docs",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "sphinx",
+			"args": ["build", "-W", "-b", "html", "docs", "docs/_build/html"],
+			"console": "internalConsole",
+			"justMyCode": false,
+			// "python": "${env:XDG_DATA_HOME}/hatch/env/virtual/session-info2/9tbJo2uQ/docs/bin/python",
+		},
 	],
 }

@@ -24,6 +24,7 @@ def widget(si: SessionInfo) -> Widget:
     button = widgets.Button(
         description="Copy as Markdown",
         icon="copy",
+        layout=widgets.Layout(width="auto"),
     )
     output = widgets.Output(layout=widgets.Layout(display="none"))
     copy_md = Javascript(_clipboard_js(si, "text/markdown"))

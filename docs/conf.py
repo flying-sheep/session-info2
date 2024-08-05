@@ -27,3 +27,4 @@ suppress_warnings = ["mystnb.unknown_mime_type"]
 # myst_nb settings
 nb_execution_mode = "cache"
 nb_execution_show_tb = True
+# For debugging: nb_execution_timeout = -1
