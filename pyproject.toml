@@ -24,15 +24,18 @@ dynamic = [ "description", "version" ]
 dependencies = [  ]
 optional-dependencies.docs = [
   "furo",
+  "hatch",
   "myst-nb",
   "session-info",
-  "session-info2[docs-env]",
   "sphinx",
 ]
-# Dependencies needed to run the notebook
-# TODO: actually run notebook with that env
-optional-dependencies.docs-env = [ "ipywidgets", "numpy" ]
 optional-dependencies.jupyter = [ "ipywidgets" ]
+# Dependencies needed to run the notebook
+optional-dependencies.notebook = [
+  "numpy",
+  "session-info",
+  "session-info2[jupyter]",
+]
 optional-dependencies.test = [
   "coverage[toml]>=6.5",
   "ipykernel",
@@ -56,10 +59,11 @@ default-args = [  ]
 features = [ "test", "jupyter" ]
 extra-dependencies = [ "pyinstrument" ]
 
-[tool.hatch.envs.docs-env]
-installer = "uv"
-features = [ "docs-env" ]
+[tool.hatch.envs.notebook]
+# installer = "uv"  # https://github.com/astral-sh/uv/issues/6032
+features = [ "notebook" ]
 extra-dependencies = [ "ipykernel" ]
+scripts.install-kernel = "python -m ipykernel install --user --name=session-info2 --display-name=session-info2"
 
 [tool.hatch.envs.docs]
 installer = "uv"
