@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import platform
+import shutil
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -11,6 +12,7 @@ from datetime import datetime, timezone
 from functools import cached_property
 from importlib.metadata import packages_distributions, version
 from multiprocessing import cpu_count
+from subprocess import PIPE, Popen
 from types import MappingProxyType, ModuleType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
@@ -45,14 +47,11 @@ class _AdditionalInfo:
     @staticmethod
     def _gpu_info() -> str:
         """Get GPU info."""
-        from distutils import spawn
-        from subprocess import PIPE, Popen
-
         if platform.system() == "Windows":
             # If the platform is Windows and nvidia-smi
             # could not be found from the environment path,
             # try to find it from system drive with default installation path
-            nvidia_smi = spawn.find_executable("nvidia-smi")
+            nvidia_smi = shutil.which("nvidia-smi")
             if nvidia_smi is None:
                 postfix = "\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe"
                 nvidia_smi = f"{os.environ['SYSTEMDRIVE']}{postfix}"
@@ -71,7 +70,7 @@ class _AdditionalInfo:
             )
             stdout, _ = p.communicate()
         except:  # noqa: E722
-            return "No GPU found"
+            return ["No GPU found"]
         output = stdout.decode("UTF-8")
 
         # Split on line break
