@@ -56,7 +56,6 @@ class _AdditionalInfo:
             if nvidia_smi is None:
                 postfix = "\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe"
                 nvidia_smi = f"{os.environ['SYSTEMDRIVE']}{postfix}"
-                )
         else:
             nvidia_smi = "nvidia-smi"
 
