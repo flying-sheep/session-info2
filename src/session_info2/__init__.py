@@ -87,7 +87,7 @@ class _AdditionalInfo:
     sys: str = field(default_factory=lambda: sys.version.replace("\n", ""))
     os: str | None = field(default_factory=platform.platform)
     cpu: str | None = field(default_factory=_cpu_info)
-    gpu: str | None = field(default_factory=_gpu_info)
+    gpu: list[str] | str | None = field(default_factory=_gpu_info)
     date: str = field(
         default_factory=lambda: datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
     )
