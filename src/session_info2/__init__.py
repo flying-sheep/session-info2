@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import platform
 import sys
 from collections import defaultdict
@@ -41,9 +42,53 @@ class _AdditionalInfo:
         proc = platform.processor() or None
         return f"{cpu_count()} logical CPU cores{f', {proc}' if proc else ''}"
 
+    @staticmethod
+    def _gpu_info() -> str:
+        """Get GPU info."""
+        from distutils import spawn
+        from subprocess import PIPE, Popen
+
+        if platform.system() == "Windows":
+            # If the platform is Windows and nvidia-smi
+            # could not be found from the environment path,
+            # try to find it from system drive with default installation path
+            nvidia_smi = spawn.find_executable("nvidia-smi")
+            if nvidia_smi is None:
+                nvidia_smi = "{}\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe".format(
+                    os.environ["systemdrive"]
+                )
+        else:
+            nvidia_smi = "nvidia-smi"
+
+        # Get ID, processing and memory utilization for all GPUs
+        try:
+            p = Popen(  # noqa: S603
+                [
+                    nvidia_smi,
+                    "--query-gpu=index,name,memory.total,driver_version",
+                    "--format=csv,noheader,nounits",
+                ],
+                stdout=PIPE,
+            )
+            stdout, _ = p.communicate()
+        except:  # noqa: E722
+            return "No GPU found"
+        output = stdout.decode("UTF-8")
+
+        # Split on line break
+        lines = output.split(os.linesep)
+        numdevices = len(lines) - 1
+        gpus = list()
+        for g in range(numdevices):
+            line = lines[g]
+            vals = line.split(", ")
+            gpus.append(f"ID: {vals[0]}, {vals[1]}, Driver:{vals[3]}, Memory:{vals[2]}")
+        return gpus
+
     sys: str = field(default_factory=lambda: sys.version.replace("\n", ""))
     os: str | None = field(default_factory=platform.platform)
     cpu: str | None = field(default_factory=_cpu_info)
+    gpu: str | None = field(default_factory=_gpu_info)
     date: str = field(
         default_factory=lambda: datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
     )
@@ -54,6 +99,9 @@ class _AdditionalInfo:
             yield ("OS", self.os)
         if self.cpu:
             yield ("CPU", self.cpu)
+        if self.gpu:
+            for gpu in self.gpu:
+                yield ("GPU", gpu)
         yield ("Updated", self.date)
 
 
@@ -157,7 +205,11 @@ class SessionInfo:
 
 
 def session_info(
-    *, os: bool = True, cpu: bool = False, dependencies: bool | None = None
+    *,
+    os: bool = True,
+    cpu: bool = False,
+    gpu: bool = False,
+    dependencies: bool | None = None,
 ) -> SessionInfo:
     """Print versions of imported packages."""
     pkg2dists = packages_distributions()
@@ -165,6 +217,7 @@ def session_info(
     info = _AdditionalInfo(
         **({} if os else dict(os=None)),  # type: ignore[arg-type]
         **({} if cpu else dict(cpu=None)),  # type: ignore[arg-type]
+        **({} if gpu else dict(gpu=None)),  # type: ignore[arg
     )
     return SessionInfo(pkg2dists, user_globals, dependencies=dependencies, info=info)
 
