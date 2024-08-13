@@ -54,8 +54,8 @@ class _AdditionalInfo:
             # try to find it from system drive with default installation path
             nvidia_smi = spawn.find_executable("nvidia-smi")
             if nvidia_smi is None:
-                nvidia_smi = "{}\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe".format(
-                    os.environ["systemdrive"]
+                postfix = "\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe"
+                nvidia_smi = f"{os.environ['SYSTEMDRIVE']}{postfix}"
                 )
         else:
             nvidia_smi = "nvidia-smi"
@@ -217,7 +217,7 @@ def session_info(
     info = _AdditionalInfo(
         **({} if os else dict(os=None)),  # type: ignore[arg-type]
         **({} if cpu else dict(cpu=None)),  # type: ignore[arg-type]
-        **({} if gpu else dict(gpu=None)),  # type: ignore[arg
+        **({} if gpu else dict(gpu=None)),  # type: ignore[arg-type]
     )
     return SessionInfo(pkg2dists, user_globals, dependencies=dependencies, info=info)
 
