@@ -45,7 +45,7 @@ class _AdditionalInfo:
         return f"{cpu_count()} logical CPU cores{f', {proc}' if proc else ''}"
 
     @staticmethod
-    def _gpu_info() -> str:
+    def _gpu_info() -> str | list[str]:
         """Get GPU info."""
         if platform.system() == "Windows":
             # If the platform is Windows and nvidia-smi
@@ -70,7 +70,7 @@ class _AdditionalInfo:
             )
             stdout, _ = p.communicate()
         except:  # noqa: E722
-            return ["No GPU found"]
+            return "No GPU found"
         output = stdout.decode("UTF-8")
 
         # Split on line break
