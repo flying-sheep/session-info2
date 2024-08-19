@@ -48,7 +48,9 @@ def test_repr(
     pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
     assert pkgs == expected
     assert re.fullmatch(
-        "Python\t[^\n]+\nOS\t[^\n]+\nCPU\t[^\n]+\nUpdated\t[^\n]+", info, re.MULTILINE
+        "Python\t[^\n]+\nOS\t[^\n]+\nCPU\t[^\n]\nGPU\t[^\n]+\nUpdated\t[^\n]+",
+        info,
+        re.MULTILINE,
     )
 
 
