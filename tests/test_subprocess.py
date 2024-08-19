@@ -28,7 +28,7 @@ async def kernel_client() -> AsyncGenerator[AsyncKernelClient, None]:
     await km.shutdown_kernel()  # pyright: ignore[reportUnknownMemberType]
 
 
-@pytest.fixture()
+@pytest.fixture
 async def execute(
     kernel_client: AsyncKernelClient, libdir_test: Path
 ) -> AsyncGenerator[Execute, None]:
