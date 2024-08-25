@@ -2,26 +2,23 @@
 
 from __future__ import annotations
 
-import os
 import platform
-import shutil
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import cached_property
 from importlib.metadata import packages_distributions, version
-from multiprocessing import cpu_count
-from subprocess import PIPE, Popen
 from types import MappingProxyType, ModuleType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
+from . import _pu
 from ._repr import repr_mimebundle as _repr_mimebundle
 from ._ttl_cache import ttl_cache
 from ._widget import widget as _widget
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable, Mapping, Sequence
+    from collections.abc import Collection, Generator, Iterable, Mapping, Sequence
     from collections.abc import Set as AbstractSet
 
     _TableHeader: TypeAlias = (
@@ -38,55 +35,10 @@ IGNORED = frozenset({"ipython", "session-info2"})
 
 @dataclass
 class _AdditionalInfo:
-    @staticmethod
-    def _cpu_info() -> str:
-        """Get CPU info."""
-        proc = platform.processor() or None
-        return f"{cpu_count()} logical CPU cores{f', {proc}' if proc else ''}"
-
-    @staticmethod
-    def _gpu_info() -> str | list[str]:
-        """Get GPU info."""
-        if platform.system() == "Windows":
-            # If the platform is Windows and nvidia-smi
-            # could not be found from the environment path,
-            # try to find it from system drive with default installation path
-            nvidia_smi = shutil.which("nvidia-smi")
-            if nvidia_smi is None:
-                postfix = "\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe"
-                nvidia_smi = f"{os.environ['SYSTEMDRIVE']}{postfix}"
-        else:
-            nvidia_smi = "nvidia-smi"
-
-        # Get ID, processing and memory utilization for all GPUs
-        try:
-            p = Popen(  # noqa: S603
-                [
-                    nvidia_smi,
-                    "--query-gpu=index,name,memory.total,driver_version",
-                    "--format=csv,noheader,nounits",
-                ],
-                stdout=PIPE,
-            )
-            stdout, _ = p.communicate()
-        except:  # noqa: E722
-            return "No GPU found"
-        output = stdout.decode("UTF-8")
-
-        # Split on line break
-        lines = output.split(os.linesep)
-        numdevices = len(lines) - 1
-        gpus = list()
-        for g in range(numdevices):
-            line = lines[g]
-            vals = line.split(", ")
-            gpus.append(f"ID: {vals[0]}, {vals[1]}, Driver:{vals[3]}, Memory:{vals[2]}")
-        return gpus
-
     sys: str = field(default_factory=lambda: sys.version.replace("\n", ""))
     os: str | None = field(default_factory=platform.platform)
-    cpu: str | None = field(default_factory=_cpu_info)
-    gpu: list[str] | str | None = field(default_factory=_gpu_info)
+    cpu: str | None = field(default_factory=_pu.cpu_info)
+    gpu: Collection[str] = field(default_factory=_pu.gpu_info)
     date: str = field(
         default_factory=lambda: datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
     )
@@ -215,7 +167,7 @@ def session_info(
     info = _AdditionalInfo(
         **({} if os else dict(os=None)),  # type: ignore[arg-type]
         **({} if cpu else dict(cpu=None)),  # type: ignore[arg-type]
-        **({} if gpu else dict(gpu=None)),  # type: ignore[arg-type]
+        **({} if gpu else dict(gpu=())),  # type: ignore[arg-type]
     )
     return SessionInfo(pkg2dists, user_globals, dependencies=dependencies, info=info)
 
