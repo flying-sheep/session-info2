@@ -16,14 +16,14 @@ if TYPE_CHECKING:
 DATA_DIR = Path(__file__).parent / "data"
 
 
-@pytest.fixture()
+@pytest.fixture
 def libdir_test(monkeypatch: pytest.MonkeyPatch) -> Path:
     """Prepend the data dir to sys.path and mark sys.modules for restoring."""
     monkeypatch.syspath_prepend(str(DATA_DIR))
     return DATA_DIR
 
 
-@pytest.fixture()
+@pytest.fixture
 def import_path(libdir_test: Path) -> Generator[Callable[[str], Any], None, None]:
     del libdir_test  # used for side effects
     added_modules: set[str] = set()
