@@ -49,9 +49,8 @@ class _AdditionalInfo:
             yield ("OS", self.os)
         if self.cpu:
             yield ("CPU", self.cpu)
-        if self.gpu:
-            for gpu in self.gpu:
-                yield ("GPU", gpu)
+        for gpu in self.gpu:
+            yield ("GPU", gpu)
         yield ("Updated", self.date)
 
 
