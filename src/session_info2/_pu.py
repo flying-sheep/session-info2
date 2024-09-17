@@ -45,6 +45,6 @@ def gpu_info() -> tuple[str, ...]:
 
     device_infos = (line.split(", ") for line in p.stdout.splitlines())
     return tuple(
-        f"ID: {id_}, {name}, Driver: {driver}, Memory: {memory}XXXXXXXB"
+        f"ID: {id_}, {name}, Driver: {driver}, Memory: {memory}MiB++++++++++"  # for some reason without the + it doesn't work
         for id_, name, driver, memory in device_infos
     )
