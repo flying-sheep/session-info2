@@ -34,7 +34,7 @@ def gpu_info() -> tuple[str, ...]:
             [
                 nvidia_smi,
                 "--query-gpu=index,name,driver_version,memory.total",
-                "--format=csv,noheader,nounits",
+                "--format=csv,noheader",
             ],
             capture_output=True,
             encoding="UTF-8",
@@ -45,6 +45,6 @@ def gpu_info() -> tuple[str, ...]:
 
     device_infos = (line.split(", ") for line in p.stdout.splitlines())
     return tuple(
-        f"ID: {id_}, {name}, Driver: {driver}, Memory: {memory}MiB++++++++++"  # for some reason without the + it doesn't work
+        f"ID: {id_}, {name}, Driver: {driver}, Memory: {memory}"
         for id_, name, driver, memory in device_infos
     )
