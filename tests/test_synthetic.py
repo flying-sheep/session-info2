@@ -127,6 +127,23 @@ def test_markdown(
     # info_rows content is already tested for plain text, no need to test it again
 
 
+def test_gpu(fp) -> None:  # noqa: ANN001
+    fp.register(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,name,driver_version,memory.total",
+            "--format=csv,noheader",
+        ],
+        stdout=b"0, NVIDIA GeForce RTX 3090, 560.35.03, 24576 MiB\n",
+    )
+    si = SessionInfo({}, {})
+    gpu = _repr.repr_markdown(si).split("\n")[5]
+    assert (
+        gpu
+        == "| GPU       | ID: 0, NVIDIA GeForce RTX 3090, Driver: 560.35.03, Memory: 24576 MiB          |"
+    )
+
+
 def assert_markdown_segment(
     cols: _TableHeader,
     content: str,
