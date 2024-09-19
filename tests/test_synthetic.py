@@ -12,6 +12,8 @@ from session_info2 import SessionInfo, _repr
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, Sequence
 
+    from pytest_subprocess import FakeProcess
+
     from session_info2 import _TableHeader
 
 
@@ -127,21 +129,31 @@ def test_markdown(
     # info_rows content is already tested for plain text, no need to test it again
 
 
-def test_gpu(fp) -> None:  # noqa: ANN001
+def test_gpu(fp: FakeProcess) -> None:
+    fp.allow_unregistered(allow=True)
     fp.register(
         [
             "nvidia-smi",
             "--query-gpu=index,name,driver_version,memory.total",
             "--format=csv,noheader",
         ],
-        stdout=b"0, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n",
+        stdout=(
+            b"0, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n"
+            b"1, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n"
+        ),
     )
     si = SessionInfo({}, {})
-    gpu = _repr.repr_markdown(si).split("\n")[5]
-    assert (
-        gpu
-        == "| GPU       | ID: 0, NVIDIA GeForce RTX 4095, Driver: 560.35.03, Memory: 24576 MiB          |"
-    )
+    gpu = _repr.repr_markdown(si).split("\n")[5:7]
+    assert gpu == [
+        (
+            "| GPU       | "
+            "ID: 0, NVIDIA GeForce RTX 4095, Driver: 560.35.03, Memory: 24576 MiB |"
+        ),
+        (
+            "| GPU       | "
+            "ID: 1, NVIDIA GeForce RTX 4095, Driver: 560.35.03, Memory: 24576 MiB |"
+        ),
+    ]
 
 
 def assert_markdown_segment(
