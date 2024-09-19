@@ -82,6 +82,8 @@ lint.ignore = [
   "D213",   # Multi-line docstring summary should start at the first instead of second line
   "FIX002", # TODOs are fine
   "ISC001", # Incompatible with formatter
+  "S603",   # We don’t want to use `subprocess.run(shell=True)`
+  "S607",   # We don’t run commands with untrusted input
   "TD002",  # No need to assign TODOs to some person
 ]
 lint.per-file-ignores."docs/conf.py" = [

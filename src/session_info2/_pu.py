@@ -30,7 +30,7 @@ def gpu_info() -> tuple[str, ...]:
 
     # Get ID, processing and memory utilization for all GPUs
     try:
-        p = run(  # noqa: S603
+        p = run(
             [
                 nvidia_smi,
                 "--query-gpu=index,name,driver_version,memory.total",
