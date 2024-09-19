@@ -31,3 +31,4 @@ repos:
     additional_dependencies:
     - pytest
     - jupyter-client
+    - pytest-subprocess

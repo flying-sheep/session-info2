@@ -12,6 +12,8 @@ from session_info2 import SessionInfo, _repr
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, Sequence
 
+    from pytest_subprocess import FakeProcess
+
     from session_info2 import _TableHeader
 
 
@@ -48,7 +50,9 @@ def test_repr(
     pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
     assert pkgs == expected
     assert re.fullmatch(
-        "Python\t[^\n]+\nOS\t[^\n]+\nCPU\t[^\n]+\nUpdated\t[^\n]+", info, re.MULTILINE
+        "Python\t[^\n]+\nOS\t[^\n]+\nCPU\t[^\n]+\nGPU\t[^\n]+\nUpdated\t[^\n]+",
+        info,
+        re.MULTILINE,
     )
 
 
@@ -123,6 +127,33 @@ def test_markdown(
     assert info_header == f"| Component | Info{' ' * info_extra} |"
     assert info_sep == f"| --------- | ----{'-' * info_extra} |"
     # info_rows content is already tested for plain text, no need to test it again
+
+
+def test_gpu(fp: FakeProcess) -> None:
+    fp.allow_unregistered(allow=True)
+    fp.register(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,name,driver_version,memory.total",
+            "--format=csv,noheader",
+        ],
+        stdout=(
+            b"0, NVIDIA GeForce RTX 3090, 560.35.03, 24576 MiB\n"
+            b"1, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n"
+        ),
+    )
+    si = SessionInfo({}, {})
+    gpu = _repr.repr_markdown(si).split("\n")[5:7]
+    assert gpu == [
+        (
+            "| GPU       | "
+            "ID: 0, NVIDIA GeForce RTX 3090, Driver: 560.35.03, Memory: 24576 MiB |"
+        ),
+        (
+            "| GPU       | "
+            "ID: 1, NVIDIA GeForce RTX 4095, Driver: 560.35.03, Memory: 24576 MiB |"
+        ),
+    ]
 
 
 def assert_markdown_segment(

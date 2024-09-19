@@ -9,16 +9,16 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import cached_property
 from importlib.metadata import packages_distributions, version
-from multiprocessing import cpu_count
 from types import MappingProxyType, ModuleType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
+from . import _pu
 from ._repr import repr_mimebundle as _repr_mimebundle
 from ._ttl_cache import ttl_cache
 from ._widget import widget as _widget
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable, Mapping, Sequence
+    from collections.abc import Collection, Generator, Iterable, Mapping, Sequence
     from collections.abc import Set as AbstractSet
 
     _TableHeader: TypeAlias = (
@@ -35,15 +35,10 @@ IGNORED = frozenset({"ipython", "session-info2"})
 
 @dataclass
 class _AdditionalInfo:
-    @staticmethod
-    def _cpu_info() -> str:
-        """Get CPU info."""
-        proc = platform.processor() or None
-        return f"{cpu_count()} logical CPU cores{f', {proc}' if proc else ''}"
-
     sys: str = field(default_factory=lambda: sys.version.replace("\n", ""))
     os: str | None = field(default_factory=platform.platform)
-    cpu: str | None = field(default_factory=_cpu_info)
+    cpu: str | None = field(default_factory=_pu.cpu_info)
+    gpu: Collection[str] = field(default_factory=_pu.gpu_info)
     date: str = field(
         default_factory=lambda: datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
     )
@@ -54,6 +49,8 @@ class _AdditionalInfo:
             yield ("OS", self.os)
         if self.cpu:
             yield ("CPU", self.cpu)
+        for gpu in self.gpu:
+            yield ("GPU", gpu)
         yield ("Updated", self.date)
 
 
@@ -157,7 +154,11 @@ class SessionInfo:
 
 
 def session_info(
-    *, os: bool = True, cpu: bool = False, dependencies: bool | None = None
+    *,
+    os: bool = True,
+    cpu: bool = False,
+    gpu: bool = False,
+    dependencies: bool | None = None,
 ) -> SessionInfo:
     """Print versions of imported packages."""
     pkg2dists = packages_distributions()
@@ -165,6 +166,7 @@ def session_info(
     info = _AdditionalInfo(
         **({} if os else dict(os=None)),  # type: ignore[arg-type]
         **({} if cpu else dict(cpu=None)),  # type: ignore[arg-type]
+        **({} if gpu else dict(gpu=())),  # type: ignore[arg-type]
     )
     return SessionInfo(pkg2dists, user_globals, dependencies=dependencies, info=info)
 

@@ -37,8 +37,8 @@ def _patch_myst_nb() -> None:
     from jupyter_cache.executors import utils  # type: ignore[import-not-found]
     from myst_nb.core.execute import cache, direct  # type: ignore[import-not-found]
 
-    run(  # noqa: S603
-        ["hatch", "-v", "run", "notebook:install-kernel"],  # noqa: S607
+    run(
+        ["hatch", "-v", "run", "notebook:install-kernel"],
         check=True,
     )
 

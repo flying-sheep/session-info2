@@ -42,10 +42,9 @@ optional-dependencies.test = [
   "jupyter-client",
   "pytest",
   "pytest-asyncio",
-  # For GitHub report
-  "pytest-md",
-  # Example package as “test data”
-  "testing-common-database",
+  "pytest-md",               # For GitHub report
+  "pytest-subprocess",
+  "testing-common-database", # Example package as “test data”
 ]
 urls.Documentation = "https://github.com/flying-sheep/session-info2#readme"
 urls.Issues = "https://github.com/flying-sheep/session-info2/issues"
@@ -81,6 +80,8 @@ lint.ignore = [
   "D213",   # Multi-line docstring summary should start at the first instead of second line
   "FIX002", # TODOs are fine
   "ISC001", # Incompatible with formatter
+  "S603",   # We don’t want to use `subprocess.run(shell=True)`
+  "S607",   # We don’t run commands with untrusted input
   "TD002",  # No need to assign TODOs to some person
 ]
 lint.per-file-ignores."docs/conf.py" = [
