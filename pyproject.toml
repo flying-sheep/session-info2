@@ -42,11 +42,9 @@ optional-dependencies.test = [
   "jupyter-client",
   "pytest",
   "pytest-asyncio",
-  # For GitHub report
-  "pytest-md",
+  "pytest-md",               # For GitHub report
   "pytest-subprocess",
-  # Example package as “test data”
-  "testing-common-database",
+  "testing-common-database", # Example package as “test data”
 ]
 urls.Documentation = "https://github.com/flying-sheep/session-info2#readme"
 urls.Issues = "https://github.com/flying-sheep/session-info2/issues"
