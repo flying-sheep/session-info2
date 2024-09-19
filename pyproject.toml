@@ -44,6 +44,7 @@ optional-dependencies.test = [
   "pytest-asyncio",
   # For GitHub report
   "pytest-md",
+  "pytest-subprocess",
   # Example package as “test data”
   "testing-common-database",
 ]
