@@ -138,7 +138,7 @@ def test_gpu(fp: FakeProcess) -> None:
             "--format=csv,noheader",
         ],
         stdout=(
-            b"0, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n"
+            b"0, NVIDIA GeForce RTX 3090, 560.35.03, 24576 MiB\n"
             b"1, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n"
         ),
     )
@@ -147,7 +147,7 @@ def test_gpu(fp: FakeProcess) -> None:
     assert gpu == [
         (
             "| GPU       | "
-            "ID: 0, NVIDIA GeForce RTX 4095, Driver: 560.35.03, Memory: 24576 MiB |"
+            "ID: 0, NVIDIA GeForce RTX 3090, Driver: 560.35.03, Memory: 24576 MiB |"
         ),
         (
             "| GPU       | "
