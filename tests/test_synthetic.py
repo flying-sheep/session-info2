@@ -134,13 +134,13 @@ def test_gpu(fp) -> None:  # noqa: ANN001
             "--query-gpu=index,name,driver_version,memory.total",
             "--format=csv,noheader",
         ],
-        stdout=b"0, NVIDIA GeForce RTX 3090, 560.35.03, 24576 MiB\n",
+        stdout=b"0, NVIDIA GeForce RTX 4095, 560.35.03, 24576 MiB\n",
     )
     si = SessionInfo({}, {})
     gpu = _repr.repr_markdown(si).split("\n")[5]
     assert (
         gpu
-        == "| GPU       | ID: 0, NVIDIA GeForce RTX 3090, Driver: 560.35.03, Memory: 24576 MiB          |"
+        == "| GPU       | ID: 0, NVIDIA GeForce RTX 4095, Driver: 560.35.03, Memory: 24576 MiB          |"
     )
 
 
