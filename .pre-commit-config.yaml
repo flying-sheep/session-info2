@@ -5,13 +5,13 @@ repos:
   - id: trailing-whitespace
   - id: end-of-file-fixer
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.7.1
+  rev: v0.7.2
   hooks:
   - id: ruff
     args: [--fix]
   - id: ruff-format
 - repo: https://github.com/tox-dev/pyproject-fmt
-  rev: "v2.4.3"
+  rev: "v2.5.0"
   hooks:
     - id: pyproject-fmt
 - repo: https://github.com/biomejs/pre-commit
@@ -20,7 +20,7 @@ repos:
   - id: biome-format
     additional_dependencies: ["@biomejs/biome@1.8.3"]
 - repo: https://github.com/kynan/nbstripout
-  rev: "0.7.1"
+  rev: "0.8.0"
   hooks:
     - id: nbstripout
 - repo: https://github.com/pre-commit/mirrors-mypy
