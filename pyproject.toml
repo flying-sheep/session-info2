@@ -100,6 +100,7 @@ lint.per-file-ignores."tests/*" = [
   "S101",   # Use of assert
 ]
 lint.allowed-confusables = [ "×", "’" ]
+lint.flake8-copyright.notice-rgx = "SPDX-License-Identifier: MPL-2\\.0"
 lint.isort.known-first-party = [ "session_info2" ]
 lint.isort.required-imports = [ "from __future__ import annotations" ]
 lint.pylint.max-args = 7

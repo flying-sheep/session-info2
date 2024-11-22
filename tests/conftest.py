@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Test utils/setup."""
 
 from __future__ import annotations

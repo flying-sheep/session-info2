@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 from collections.abc import Callable, Container, Sequence
 from contextlib import AbstractContextManager
 from dataclasses import KW_ONLY, dataclass
