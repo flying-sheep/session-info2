@@ -6,7 +6,7 @@ requires = [ "hatch-docstring-description", "hatch-vcs", "hatchling" ]
 name = "session-info2"
 readme = "README.md"
 keywords = [ "jupyter", "session-info" ]
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
 authors = [ { name = "Philipp A.", email = "flying-sheep@web.de" } ]
 requires-python = ">=3.10"
 classifiers = [
@@ -135,3 +135,6 @@ mypy_path = [ "$MYPY_CONFIG_FILE_DIR/stubs", "$MYPY_CONFIG_FILE_DIR/src" ]
 [tool.pyright]
 stubPath = "./stubs"
 reportPrivateUsage = false
+
+[tool.esbonio.sphinx]
+pythonCommand = [ "hatch", "-e", "docs", "run", "python" ]
