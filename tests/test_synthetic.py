@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Run tests with artificial data."""
 
 from __future__ import annotations

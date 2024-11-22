@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Print versions of imported packages."""
 
 from __future__ import annotations
