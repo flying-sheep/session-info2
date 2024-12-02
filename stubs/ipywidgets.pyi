@@ -205,11 +205,11 @@ class Output(DOMWidget, AbstractContextManager[None]):
     msg_id: str = ""
     outputs: tuple[dict[str, Any], ...] = ()
 
-    def clear_output(self, wait: bool = False) -> None: ...  # noqa: FBT001, FBT002
+    def clear_output(self, wait: bool = False) -> None: ...
     def capture(
         self,
-        clear_output: bool = False,  # noqa: FBT001, FBT002
-        wait: bool = False,  # noqa: FBT001, FBT002
+        clear_output: bool = False,
+        wait: bool = False,
     ) -> Callable[[_F], _F]: ...
     def __enter__(self) -> None: ...
     def __exit__(
