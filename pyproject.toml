@@ -27,7 +27,7 @@ optional-dependencies.docs = [
   "furo",
   "hatch",
   "myst-nb",
-  "session-info",
+  "session-info2[notebook]",
   "sphinx",
   "sphinx-autodoc-typehints",
 ]
