@@ -60,8 +60,11 @@ class SessionInfo:
     """Information about imported packages."""
 
     pkg2dists: Mapping[str, Sequence[str]]
+    """Mapping of package names to distributions."""
     user_globals: Mapping[str, Any]
+    """Mapping of variable names to objects."""
     dependencies: bool | None = None
+    """Whether to include versions of dependencies."""
 
     info: _AdditionalInfo = field(default_factory=_AdditionalInfo)
 
@@ -161,7 +164,15 @@ def session_info(
     gpu: bool = False,
     dependencies: bool | None = None,
 ) -> SessionInfo:
-    """Print versions of imported packages."""
+    """Display versions of imported packages and the system.
+
+    :param os: Include OS name and version.
+    :param cpu: Include number of CPU cores.
+    :param gpu: Include information per supported GPU.
+    :param dependencies: Print versions of dependencies.
+
+    :return: Collected information about the session.
+    """
     pkg2dists = packages_distributions()
     user_globals = vars(sys.modules["__main__"])
     info = _AdditionalInfo(
