@@ -159,6 +159,11 @@ def repr_mimebundle(
     exclude: Container[str] | None = None,
     **_kwargs: object,
 ) -> dict[SupportedMime, Any]:
+    """Generate MIME bundle representations.
+
+    :param include: MIME types to include.
+    :param exclude: MIME types to exclude.
+    """
     mb: dict[SupportedMime, Any] = {}
     for mime, repr_fn in MIME_REPRS.items():
         if include is not None and mime not in include:

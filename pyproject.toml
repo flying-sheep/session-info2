@@ -27,8 +27,10 @@ optional-dependencies.docs = [
   "furo",
   "hatch",
   "myst-nb",
-  "session-info",
+  "session-info2[notebook]",
   "sphinx",
+  "sphinx-autodoc-typehints",
+  "sphinx-codeautolink",
 ]
 optional-dependencies.jupyter = [ "ipywidgets" ]
 # Dependencies needed to run the notebook
@@ -73,7 +75,6 @@ scripts.build = "sphinx-build -W --keep-going -b html docs docs/_build/html {arg
 [tool.ruff]
 lint.select = [ "ALL" ]
 lint.ignore = [
-  "ANN101", # Missing type annotation for self in method
   "B019",   # functools.cache is fine to use
   "C408",   # dict(...) calls are good
   "COM812", # Incompatible with formatter
@@ -84,6 +85,10 @@ lint.ignore = [
   "S603",   # We don’t want to use `subprocess.run(shell=True)`
   "S607",   # We don’t run commands with untrusted input
   "TD002",  # No need to assign TODOs to some person
+]
+lint.per-file-ignores."**/*.ipynb" = [
+  "CPY001", # Missing copyright notice in notebook is fine
+  "I002",   # Missing `from __future__ import annotations` is fine
 ]
 lint.per-file-ignores."docs/conf.py" = [
   "INP001", # __init__.py

@@ -22,10 +22,27 @@ project = _info.get("Name")
 
 # basic build settings
 html_theme = "furo"
-extensions = ["myst_nb", *_sbc]
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+extensions = [
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autodoc",
+    "sphinx_autodoc_typehints",
+    "sphinx_codeautolink",
+    "myst_nb",
+    *_sbc,
+]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
 suppress_warnings = ["mystnb.unknown_mime_type"]
+
+intersphinx_mapping = dict(
+    python=("https://docs.python.org/3/", None),
+    ipywidgets=("https://ipywidgets.readthedocs.io/en/stable/", None),
+)
+
+always_use_bars_union = True
+typehints_defaults = "comma"
 
 # myst_nb settings
 nb_execution_mode = "force"
