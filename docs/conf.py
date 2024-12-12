@@ -22,10 +22,13 @@ project = _info.get("Name")
 
 # basic build settings
 html_theme = "furo"
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
+    "sphinx_codeautolink",
     "myst_nb",
     *_sbc,
 ]

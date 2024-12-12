@@ -30,6 +30,7 @@ optional-dependencies.docs = [
   "session-info2[notebook]",
   "sphinx",
   "sphinx-autodoc-typehints",
+  "sphinx-codeautolink",
 ]
 optional-dependencies.jupyter = [ "ipywidgets" ]
 # Dependencies needed to run the notebook

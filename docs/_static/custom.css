@@ -1,0 +1,10 @@
+.sphinx-codeautolink-a:link,
+.sphinx-codeautolink-a:link * {
+    text-decoration: underline;
+    color: var(--color-link) !important;
+}
+.sphinx-codeautolink-a:visited,
+.sphinx-codeautolink-a:visited * {
+    text-decoration: underline;
+    color: var(--color-link--visited) !important;
+}
