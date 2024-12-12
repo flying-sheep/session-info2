@@ -60,7 +60,7 @@ class SessionInfo:
     """Information about imported packages.
 
     Can be displayed as string (:meth:`__repr__`),
-    Markdown/HTML (`_repr_mimebundle_`), or as a :meth:`widget`).
+    Markdown/HTML (:meth:`_repr_mimebundle_`), or as a :meth:`widget`).
     """
 
     pkg2dists: Mapping[str, Sequence[str]]
