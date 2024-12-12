@@ -57,20 +57,26 @@ class _AdditionalInfo:
 
 @dataclass(frozen=True)
 class SessionInfo:
-    """Information about imported packages."""
+    """Information about imported packages.
+
+    Can be displayed as string (:meth:`__repr__`),
+    Markdown/HTML (`_repr_mimebundle_`), or as a :meth:`widget`).
+    """
 
     pkg2dists: Mapping[str, Sequence[str]]
     """Mapping of package names to distributions."""
     user_globals: Mapping[str, Any]
     """Mapping of variable names to objects."""
     dependencies: bool | None = None
-    """Whether to include versions of dependencies."""
+    """Whether to include versions of dependencies.
+    (`None` means that behavior depends on the individual representation.)
+    """
 
     info: _AdditionalInfo = field(default_factory=_AdditionalInfo)
 
     @cached_property
     def dist2pkgs(self) -> Mapping[str, frozenset[str]]:
-        """Get mapping of distributions to packages."""
+        """Mapping of distributions to packages."""
         d2ps: defaultdict[str, set[str]] = defaultdict(set)
         for pkg, dists in self.pkg2dists.items():
             for dist in dists:
@@ -79,7 +85,7 @@ class SessionInfo:
 
     @cached_property
     def imported_dists(self) -> AbstractSet[str]:
-        """Get ordered set of imported distributions."""
+        """Ordered set of imported distributions."""
         # Use dict for preserving insertion order
         imported: dict[str, None] = {}
         for obj in self.user_globals.values():
@@ -94,7 +100,7 @@ class SessionInfo:
 
     @cached_property
     def deps_dists(self) -> AbstractSet[str]:
-        """Get ordered set of loaded distributions that aren’t imported."""
+        """Ordered set of loaded distributions that aren’t imported."""
         return {
             dist
             for dist, pkgs in self.dist2pkgs.items()
