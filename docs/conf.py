@@ -18,7 +18,7 @@ _info = metadata("session_info2")
 
 # specify project details
 master_doc = "index"
-project = _info.get("Name")
+project = _info.get("Name")  # type: ignore[attr-defined]
 
 # basic build settings
 html_theme = "furo"

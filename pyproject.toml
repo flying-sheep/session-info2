@@ -58,7 +58,7 @@ source = "vcs"
 
 [[tool.hatch.envs.hatch-test.matrix]]
 python = [ "3.10", "3.11", "3.12", "3.13" ]
-deps = [ "min", "all" ]
+deps = [ "all", "min" ]
 
 [tool.hatch.envs.hatch-test]
 default-args = [  ]
