@@ -56,7 +56,6 @@ urls.Source = "https://github.com/flying-sheep/session-info2"
 [tool.hatch.version]
 source = "vcs"
 
-
 [[tool.hatch.envs.hatch-test.matrix]]
 python = [ "3.10", "3.11", "3.12", "3.13" ]
 deps = [ "min", "all" ]
