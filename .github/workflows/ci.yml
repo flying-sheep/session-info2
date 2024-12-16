@@ -14,7 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.13']
+        include:
+          - python-version: '3.10'
+          - python-version: '3.13'
+          - python-version: '3.13'
+            extras: min
     steps:
     - uses: actions/checkout@v4
       with:
@@ -26,7 +30,7 @@ jobs:
     - uses: hynek/setup-cached-uv@v2
       with:
         cache-dependency-path: pyproject.toml
-    - run: uv pip install --system -e .[test,jupyter]
+    - run: uv pip install --system -e .[${{ matrix.extras == 'min' && 'test' || 'test,jupyter' }}]
     - uses: pavelzw/pytest-action@v2
       with:
         custom-arguments: --color=yes

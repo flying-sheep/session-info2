@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+from importlib.util import find_spec
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -19,6 +20,9 @@ if TYPE_CHECKING:
     from jupyter_client.asynchronous.client import AsyncKernelClient
 
     Execute = Callable[[str], Awaitable[list[dict[str, str]]]]
+
+
+HAS_IPYWIDGETS = bool(find_spec("ipywidgets"))
 
 
 @pytest.fixture(scope="session")
@@ -101,12 +105,12 @@ session_info()
 async def test_run(execute: Execute, code: str, expected: str) -> None:
     await execute(code)
     [mimebundle] = await execute(RUN)
-    assert mimebundle.keys() == {
+    assert set(mimebundle.keys()) == {
         "text/plain",
         "text/markdown",
         "text/html",
         "application/json",
-        MIME_WIDGET,
+        *([MIME_WIDGET] if HAS_IPYWIDGETS else []),
     }
     r = mimebundle["text/plain"]
     pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
