@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-import traceback
+import warnings
 from textwrap import dedent, indent
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -177,6 +177,10 @@ def repr_mimebundle(
             continue
         try:
             mb[mime] = repr_fn(si)
-        except ImportError:
-            traceback.print_exc()
+        except ImportError as e:
+            msg = (
+                f"Failed to import dependencies for {mime} representation. "
+                f"({type(e).__name__}: {e})"
+            )
+            warnings.warn(msg, RuntimeWarning, stacklevel=8)
     return mb

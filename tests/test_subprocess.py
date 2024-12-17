@@ -131,6 +131,7 @@ async def test_run(execute: Execute, code: str, expected: str) -> None:
         [msg] = msgs
         assert msg["msg_type"] == "stream"
         assert msg["name"] == "stderr"
+        assert f"Failed to import dependencies for {MIME_WIDGET}" in msg["text"]
         assert "ModuleNotFoundError: No module named 'ipywidgets'" in msg["text"]
 
     assert result["msg_type"] == "execute_result"
