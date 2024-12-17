@@ -138,7 +138,6 @@ async def test_run(execute: Execute, code: str, expected: str) -> None:
         "text/plain",
         "text/markdown",
         "text/html",
-        "application/json",
         *([MIME_WIDGET] if HAS_IPYWIDGETS else []),
     }
     r = result["data"]["text/plain"]
