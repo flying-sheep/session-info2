@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-import traceback
+import warnings
 from textwrap import dedent, indent
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -153,6 +153,9 @@ MIME_REPRS: Mapping[SupportedMime, _ReprCB] = MappingProxyType(
 )
 
 
+DEFAULT_EXCLUDE = {"application/json"}
+
+
 def repr_mimebundle(
     si: SessionInfo,
     include: Container[str] | None = None,
@@ -170,8 +173,14 @@ def repr_mimebundle(
             continue
         if exclude is not None and mime in exclude:
             continue
+        if mime in DEFAULT_EXCLUDE and (include is None or mime not in include):
+            continue
         try:
             mb[mime] = repr_fn(si)
-        except ImportError:
-            traceback.print_exc()
+        except ImportError as e:
+            msg = (
+                f"Failed to import dependencies for {mime} representation. "
+                f"({type(e).__name__}: {e})"
+            )
+            warnings.warn(msg, RuntimeWarning, stacklevel=8)
     return mb

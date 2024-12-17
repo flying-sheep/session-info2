@@ -56,10 +56,17 @@ urls.Source = "https://github.com/flying-sheep/session-info2"
 [tool.hatch.version]
 source = "vcs"
 
+[[tool.hatch.envs.hatch-test.matrix]]
+python = [ "3.10", "3.11", "3.12", "3.13" ]
+deps = [ "all", "min" ]
+
 [tool.hatch.envs.hatch-test]
 default-args = [  ]
-features = [ "test", "jupyter" ]
+features = [ "test" ]
 extra-dependencies = [ "pyinstrument" ]
+overrides.matrix.deps.features = [
+  { if = [ "all" ], value = "jupyter" },
+]
 
 [tool.hatch.envs.notebook]
 # installer = "uv"  # https://github.com/astral-sh/uv/issues/6032

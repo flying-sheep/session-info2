@@ -5,7 +5,8 @@ from __future__ import annotations
 
 import json
 import re
-from typing import TYPE_CHECKING, Any
+from importlib.util import find_spec
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 import pytest
 from jupyter_client.manager import start_new_async_kernel
@@ -18,7 +19,33 @@ if TYPE_CHECKING:
 
     from jupyter_client.asynchronous.client import AsyncKernelClient
 
-    Execute = Callable[[str], Awaitable[list[dict[str, str]]]]
+    class Result(TypedDict):  # noqa: D101
+        msg_type: Literal["execute_result"]
+        data: dict[str, str]
+        metadata: dict[str, str]
+
+    class Display(TypedDict):  # noqa: D101
+        msg_type: Literal["display_data"]
+        data: dict[str, str]
+        metadata: dict[str, str]
+
+    class Stream(TypedDict):  # noqa: D101
+        msg_type: Literal["stream"]
+        name: str
+        text: str
+
+    SimpleMsg = Result | Display | Stream
+
+    Execute = Callable[[str], Awaitable[list["SimpleMsg"]]]
+
+
+HAS_IPYWIDGETS = bool(find_spec("ipywidgets"))
+
+
+def simple_msg(msg: dict[str, Any]) -> SimpleMsg | None:
+    if msg["header"]["msg_type"] not in {"execute_result", "display_data", "stream"}:
+        return None
+    return dict(msg_type=msg["header"]["msg_type"], **msg["content"])  # type: ignore[return-value]
 
 
 @pytest.fixture(scope="session")
@@ -33,7 +60,7 @@ async def kernel_client() -> AsyncGenerator[AsyncKernelClient, None]:
 async def execute(
     kernel_client: AsyncKernelClient, libdir_test: Path
 ) -> AsyncGenerator[Execute, None]:
-    async def execute(code: str) -> list[dict[str, str]]:
+    async def execute(code: str) -> list[SimpleMsg]:
         await kernel_client.wait_for_ready()
         msgs: list[dict[str, Any]] = []
         reply = await kernel_client.execute_interactive(  # pyright: ignore[reportUnknownMemberType]
@@ -48,11 +75,7 @@ async def execute(
             pytest.fail("{ename}: {evalue}\n{traceback}".format_map(content))
         elif reply["content"]["status"] != "ok":
             pytest.fail(f"Unexpected reply status: {reply['content']['status']}")
-        return [
-            msg["content"]["data"]
-            for msg in msgs
-            if msg["header"]["msg_type"] == "execute_result"
-        ]
+        return [smsg for msg in msgs if (smsg := simple_msg(msg)) is not None]
 
     await execute(
         f"""
@@ -100,15 +123,25 @@ session_info()
 )
 async def test_run(execute: Execute, code: str, expected: str) -> None:
     await execute(code)
-    [mimebundle] = await execute(RUN)
-    assert mimebundle.keys() == {
+    [*msgs, result] = await execute(RUN)
+
+    if HAS_IPYWIDGETS:
+        assert not msgs
+    else:
+        [msg] = msgs
+        assert msg["msg_type"] == "stream"
+        assert msg["name"] == "stderr"
+        assert f"Failed to import dependencies for {MIME_WIDGET}" in msg["text"]
+        assert "ModuleNotFoundError: No module named 'ipywidgets'" in msg["text"]
+
+    assert result["msg_type"] == "execute_result"
+    assert set(result["data"].keys()) == {
         "text/plain",
         "text/markdown",
         "text/html",
-        "application/json",
-        MIME_WIDGET,
+        *([MIME_WIDGET] if HAS_IPYWIDGETS else []),
     }
-    r = mimebundle["text/plain"]
+    r = result["data"]["text/plain"]
     pkgs, info = r.split("\n----\t----\n") if "----" in r else ("", r)
     assert pkgs == expected
     # No CPU info by default
