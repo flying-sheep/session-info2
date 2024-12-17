@@ -153,6 +153,9 @@ MIME_REPRS: Mapping[SupportedMime, _ReprCB] = MappingProxyType(
 )
 
 
+DEFAULT_EXCLUDE = {"application/json"}
+
+
 def repr_mimebundle(
     si: SessionInfo,
     include: Container[str] | None = None,
@@ -169,6 +172,8 @@ def repr_mimebundle(
         if include is not None and mime not in include:
             continue
         if exclude is not None and mime in exclude:
+            continue
+        if mime in DEFAULT_EXCLUDE and (include is None or mime not in include):
             continue
         try:
             mb[mime] = repr_fn(si)
