@@ -5,14 +5,7 @@ from __future__ import annotations
 
 from functools import partial
 from importlib.metadata import metadata
-from importlib.util import find_spec
 from subprocess import run
-
-_sbc = (
-    ["sphinx_build_compatibility.extension"]
-    if find_spec("sphinx_build_compatibility")
-    else []
-)
 
 _info = metadata("session_info2")
 
@@ -24,13 +17,17 @@ project = _info.get("Name")
 html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
+html_theme_options = dict(
+    source_repository="https://github.com/flying-sheep/session-info2/",
+    source_branch="main",
+    source_directory="docs/",
+)
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
     "sphinx_codeautolink",
     "myst_nb",
-    *_sbc,
 ]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
