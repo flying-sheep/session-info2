@@ -3,18 +3,14 @@
 
 from __future__ import annotations
 
+import os
 from functools import partial
 from importlib.metadata import metadata
-from importlib.util import find_spec
 from subprocess import run
 
-_sbc = (
-    ["sphinx_build_compatibility.extension"]
-    if find_spec("sphinx_build_compatibility")
-    else []
-)
-
 _info = metadata("session_info2")
+_branch = os.environ.get("READTHEDOCS_GIT_IDENTIFIER", "main")
+_gh_user, _gh_repo = "flying-sheep", "session-info2"
 
 # specify project details
 master_doc = "index"
@@ -23,14 +19,30 @@ project = _info.get("Name")
 # basic build settings
 html_theme = "furo"
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+html_css_files = [
+    "custom.css"
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/solid.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/brands.min.css",
+]
+html_theme_options = dict(
+    source_repository=f"https://github.com/{_gh_user}/{_gh_repo}/",
+    source_branch=_branch,
+    source_directory="docs/",
+)
+html_context = dict(
+    READTHEDOCS=bool(os.environ.get("READTHEDOCS", "")),
+    display_github=True,
+    github_user=_gh_user,
+    github_repo=_gh_repo,
+    github_version=_branch,
+)
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
     "sphinx_codeautolink",
     "myst_nb",
-    *_sbc,
 ]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
