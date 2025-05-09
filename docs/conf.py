@@ -21,13 +21,15 @@ html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = dict(
+    source_repository=f"https://github.com/{_gh_user}/{_gh_repo}/",
+    source_branch=_branch,
+    source_directory="docs/",
+)
+html_context = dict(
     display_github=True,
     github_user=_gh_user,
     github_repo=_gh_repo,
     github_version=_branch,
-    source_repository=f"https://github.com/{_gh_user}/{_gh_repo}/",
-    source_branch=_branch,
-    source_directory="docs/",
 )
 extensions = [
     "sphinx.ext.intersphinx",
