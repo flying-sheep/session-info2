@@ -21,9 +21,9 @@ html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = [
     "custom.css"
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css",
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/solid.min.css",
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/brands.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/fontawesome.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/solid.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/brands.min.css",
 ]
 html_theme_options = dict(
     source_repository=f"https://github.com/{_gh_user}/{_gh_repo}/",
