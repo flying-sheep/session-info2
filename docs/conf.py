@@ -20,7 +20,7 @@ project = _info.get("Name")
 html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = [
-    "custom.css"
+    "custom.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/fontawesome.min.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/solid.min.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/brands.min.css",
