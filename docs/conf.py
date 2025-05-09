@@ -3,11 +3,14 @@
 
 from __future__ import annotations
 
+import os
 from functools import partial
 from importlib.metadata import metadata
 from subprocess import run
 
 _info = metadata("session_info2")
+_branch = os.environ.get("READTHEDOCS_GIT_IDENTIFIER", "main")
+_gh_user, _gh_repo = "flying-sheep", "session-info2"
 
 # specify project details
 master_doc = "index"
@@ -18,8 +21,12 @@ html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = dict(
-    source_repository="https://github.com/flying-sheep/session-info2/",
-    source_branch="main",
+    display_github=True,
+    github_user=_gh_user,
+    github_repo=_gh_repo,
+    github_version=_branch,
+    source_repository=f"https://github.com/{_gh_user}/{_gh_repo}/",
+    source_branch=_branch,
     source_directory="docs/",
 )
 extensions = [

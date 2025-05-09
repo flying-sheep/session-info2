@@ -15,7 +15,6 @@
 			"source.organizeImports": "always",
 		},
 	},
-	"python.analysis.typeCheckingMode": "strict",
 	"python.testing.pytestArgs": ["--color=yes", "-vv"],
 	"python.testing.pytestEnabled": true,
 	// mirror settings from pyproject-fmt
