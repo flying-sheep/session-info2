@@ -84,16 +84,17 @@ scripts.build = "sphinx-build -W --keep-going -b html docs docs/_build/html {arg
 [tool.ruff]
 lint.select = [ "ALL" ]
 lint.ignore = [
-  "B019",   # functools.cache is fine to use
-  "C408",   # dict(...) calls are good
-  "COM812", # Incompatible with formatter
-  "D203",   # 0 instead of 1 blank lines before class docstring
-  "D213",   # Multi-line docstring summary should start at the first instead of second line
-  "FIX002", # TODOs are fine
-  "ISC001", # Incompatible with formatter
-  "S603",   # We don’t want to use `subprocess.run(shell=True)`
-  "S607",   # We don’t run commands with untrusted input
-  "TD002",  # No need to assign TODOs to some person
+  "B019",    # functools.cache is fine to use
+  "C408",    # dict(...) calls are good
+  "COM812",  # Incompatible with formatter
+  "D203",    # 0 instead of 1 blank lines before class docstring
+  "D213",    # Multi-line docstring summary should start at the first instead of second line
+  "FIX002",  # TODOs are fine
+  "ISC001",  # Incompatible with formatter
+  "PLC0415", # Non-top-level imports are fine
+  "S603",    # We don’t want to use `subprocess.run(shell=True)`
+  "S607",    # We don’t run commands with untrusted input
+  "TD002",   # No need to assign TODOs to some person
 ]
 lint.per-file-ignores."**/*.ipynb" = [
   "CPY001", # Missing copyright notice in notebook is fine
