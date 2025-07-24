@@ -9,11 +9,12 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import cached_property
-from importlib.metadata import packages_distributions, version
+from importlib.metadata import version
 from types import MappingProxyType, ModuleType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from . import _pu
+from ._dists import packages_distributions
 from ._repr import repr_mimebundle as _repr_mimebundle
 from ._ttl_cache import ttl_cache
 from ._widget import widget as _widget
