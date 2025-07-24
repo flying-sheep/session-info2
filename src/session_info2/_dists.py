@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from importlib.metadata import Distribution, distributions
 from importlib.metadata import packages_distributions as pkgs_dists
 from pathlib import Path
@@ -25,10 +26,12 @@ def packages_distributions() -> Mapping[str, list[str]]:
 def _top_level_editable(dist: Distribution) -> Generator[str, None, None]:
     """Find top-level packages in an editable distribution."""
     for pth_file in dist.files or ():
-        if pth_file.suffix != ".pth":
+        if len(pth_file.parts) != 1 or pth_file.suffix != ".pth":
             continue
-        for dir_ in map(Path, pth_file.read_text().splitlines()):
-            for p in dir_.iterdir():
+        for line in pth_file.read_text().splitlines():
+            if re.match(r"import\s", line):
+                continue  # https://docs.python.org/3/library/site.html
+            for p in Path(line).iterdir():
                 if p.is_dir() and (p / "__init__.py").is_file():
                     # TODO: support namespace packages
                     pkg_name = p.name
