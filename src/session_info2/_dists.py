@@ -20,7 +20,8 @@ def packages_distributions() -> Mapping[str, list[str]]:
     pds = dict(pkgs_dists())
     for dist in distributions():
         for pkg_name in _top_level_editable(dist):
-            pds.setdefault(pkg_name, []).append(dist.name)
+            if "." not in pkg_name:  # apparently that’s what makes an importable name
+                pds.setdefault(pkg_name, []).append(dist.name)
     return pds
 
 
@@ -33,13 +34,18 @@ def _top_level_editable(dist: Distribution) -> Generator[str, None, None]:
             if re.match(r"import\s", line):
                 continue  # https://docs.python.org/3/library/site.html
             for p in Path(line).iterdir():
-                if p.is_dir() and (p / "__init__.py").is_file():
-                    # TODO: support namespace packages
-                    pkg_name = p.name
-                elif p.suffix == ".py":
-                    pkg_name = p.stem
-                else:
-                    continue
-                # apparently that’s what makes an importable name
-                if "." not in pkg_name:
-                    yield pkg_name
+                yield from _find_top_level(p)
+
+
+def _find_top_level(root: Path) -> Generator[str, None, None]:
+    if root.suffix == ".py" and "." not in root.stem and root.is_file():
+        yield root.stem
+        return
+    if "." in root.name or not root.is_dir():
+        return
+    if (root / "__init__.py").is_file():
+        yield root.name
+        return
+    for p in root.iterdir():
+        for pkg in _find_top_level(p):
+            yield f"{root.name}.{pkg}"
