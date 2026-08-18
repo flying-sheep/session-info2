@@ -146,10 +146,10 @@ filterwarnings = [
 strict = true
 
 [tool.coverage]
-run.branch = true
-run.omit = []
-run.parallel = true
 run.source_pkgs = [ "session_info2", "tests" ]
+run.omit = []
+run.branch = true
+run.parallel = true
 paths.session_info2 = [
   "src/session_info2",
   "*/session-info2/src/session_info2",
