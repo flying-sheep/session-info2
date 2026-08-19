@@ -46,10 +46,10 @@ docs = [
   "hatch>=1.18",
   "ipywidgets",
   "myst-nb>=1.3",
-  "session-info2[notebook]",
   "sphinx",
   "sphinx-autodoc-typehints",
   "sphinx-codeautolink",
+  { include-group = "notebook" },
 ]
 # Dependencies needed to run the notebook
 notebook = [
