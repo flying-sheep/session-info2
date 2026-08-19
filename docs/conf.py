@@ -46,7 +46,6 @@ extensions = [
 ]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 nitpicky = True
-suppress_warnings = ["mystnb.unknown_mime_type"]
 
 intersphinx_mapping = dict(
     python=("https://docs.python.org/3/", None),
