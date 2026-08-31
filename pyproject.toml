@@ -82,7 +82,9 @@ envs.hatch-test.overrides.matrix.deps.features = [
 envs.hatch-test.default-args = []
 envs.hatch-test.dependency-groups = [ "test" ]
 envs.notebook.extra-dependencies = [ "ipykernel" ]
-envs.notebook.scripts.install-kernel = "python -m ipykernel install --user --name=session-info2 --display-name=session-info2 --env COLUMNS 110"
+envs.notebook.scripts.install-kernel = """\
+  python -m ipykernel install --user --name=session-info2 --display-name=session-info2 --env COLUMNS 110\
+  """
 envs.notebook.dependency-groups = [ "notebook" ]
 
 [tool.ruff]
